@@ -22,15 +22,15 @@ reader = geoip2.database.Reader(GEOIP_DB)
 
 # ایموجی پرچم واقعی
 FLAG_EMOJI = {
-    'US': '🇺🇸', 'GB': '🇬🇧', 'DE': '🇩🇪', 'NL': '🇳🇱', 'FR': '🇫🇷',
-    'CA': '🇨🇦', 'JP': '🇯🇵', 'SG': '🇸🇬', 'HK': '🇭🇰', 'KR': '🇰🇷',
-    'IR': '🇮🇷', 'RU': '🇷🇺', 'CN': '🇨🇳', 'IN': '🇮🇳', 'BR': '🇧🇷',
-    'TR': '🇹🇷', 'AE': '🇦🇪', 'AU': '🇦🇺', 'SE': '🇸🇪', 'FI': '🇫🇮',
-    'IT': '🇮🇹', 'ES': '🇪🇸', 'PL': '🇵🇱', 'UA': '🇺🇦', 'IL': '🇮🇱'
+    'US': 'US', 'GB': 'GB', 'DE': 'DE', 'NL': 'NL', 'FR': 'FR',
+    'CA': 'CA', 'JP': 'JP', 'SG': 'SG', 'HK': 'HK', 'KR': 'KR',
+    'IR': 'IR', 'RU': 'RU', 'CN': 'CN', 'IN': 'IN', 'BR': 'BR',
+    'TR': 'TR', 'AE': 'AE', 'AU': 'AU', 'SE': 'SE', 'FI': 'FI',
+    'IT': 'IT', 'ES': 'ES', 'PL': 'PL', 'UA': 'UA', 'IL': 'IL'
 }
 
 def get_flag(code):
-    return FLAG_EMOJI.get(code, '🌐')
+    return FLAG_EMOJI.get(code, 'Global')
 
 def extract_ip_port(link):
     try:
@@ -84,6 +84,8 @@ async def main():
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         for cfg in sorted(valid_configs):
             f.write(cfg + '\n')
+
+    print(f"{len(valid_configs)} configs saved to {OUTPUT_FILE}")
 
 if __name__ == '__main__':
     asyncio.run(main())
