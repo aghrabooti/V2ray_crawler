@@ -8,6 +8,8 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -18,15 +20,17 @@ jobs:
 
       - name: Download GeoIP Database
         run: |
-          wget -O GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/main/GeoLite2-Country.mmdb
+          wget -O GeoLite2-Country.mmdb.gz https://github.com/wp-statistics/GeoLite2-Country/raw/master/GeoLite2-Country.mmdb.gz
+          gunzip GeoLite2-Country.mmdb.gz
+          ls -la GeoLite2-Country.mmdb
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Run extraction
         env:
-          TELEGRAM_API_ID: ${{ secrets.API_ID }}
-          TELEGRAM_API_HASH: ${{ secrets.API_HASH }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
         run: python extract.py
 
       - name: Commit and push
@@ -34,5 +38,9 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add sub.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update subscription $(date)"
-          git push
+          if git diff --quiet --staged; then
+            echo "No changes"
+          else
+            git commit -m "Update subscription $(date)"
+            git push
+          fi
