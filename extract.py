@@ -7,8 +7,8 @@ import json
 from urllib.parse import urlparse
 import base64
 
-API_ID = 20221005
-API_HASH = '35a9246b9e00de8c09c5290e062d50a7'
+API_ID = API_ID
+API_HASH = 'API_HASH'
 CHANNEL = '@DailyV2Proxy'
 OUTPUT_FILE = 'sub.txt'
 GEOIP_DB = 'GeoLite2-Country.mmdb'
