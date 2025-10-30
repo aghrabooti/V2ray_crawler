@@ -1,0 +1,38 @@
+name: Update V2Ray Subscription
+
+on:
+  schedule:
+    - cron: '0 */1 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Download GeoIP Database
+        run: |
+          wget -O GeoLite2-Country.mmdb https://github.com/P3TERX/GeoLite.mmdb/raw/main/GeoLite2-Country.mmdb
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run extraction
+        env:
+          TELEGRAM_API_ID: ${{ secrets.API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.API_HASH }}
+        run: python extract.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add sub.txt
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update subscription $(date)"
+          git push
