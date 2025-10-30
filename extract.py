@@ -6,9 +6,12 @@ import geoip2.database
 import json
 from urllib.parse import urlparse
 import base64
+import os
 
-API_ID = API_ID
-API_HASH = 'API_HASH'
+# امن: از GitHub Secrets می‌خونه
+API_ID = int(os.getenv('TELEGRAM_API_ID'))
+API_HASH = os.getenv('TELEGRAM_API_HASH')
+
 CHANNEL = '@DailyV2Proxy'
 OUTPUT_FILE = 'sub.txt'
 GEOIP_DB = 'GeoLite2-Country.mmdb'
@@ -17,14 +20,17 @@ TIMEOUT = 5
 client = TelegramClient('session', API_ID, API_HASH)
 reader = geoip2.database.Reader(GEOIP_DB)
 
+# ایموجی پرچم واقعی
 FLAG_EMOJI = {
-    'US': 'US', 'GB': 'GB', 'DE': 'DE', 'NL': 'NL', 'FR': 'FR',
-    'CA': 'CA', 'JP': 'JP', 'SG': 'SG', 'HK': 'HK', 'KR': 'KR',
-    'IR': 'IR', 'RU': 'RU', 'CN': 'CN', 'IN': 'IN', 'BR': 'BR'
+    'US': '🇺🇸', 'GB': '🇬🇧', 'DE': '🇩🇪', 'NL': '🇳🇱', 'FR': '🇫🇷',
+    'CA': '🇨🇦', 'JP': '🇯🇵', 'SG': '🇸🇬', 'HK': '🇭🇰', 'KR': '🇰🇷',
+    'IR': '🇮🇷', 'RU': '🇷🇺', 'CN': '🇨🇳', 'IN': '🇮🇳', 'BR': '🇧🇷',
+    'TR': '🇹🇷', 'AE': '🇦🇪', 'AU': '🇦🇺', 'SE': '🇸🇪', 'FI': '🇫🇮',
+    'IT': '🇮🇹', 'ES': '🇪🇸', 'PL': '🇵🇱', 'UA': '🇺🇦', 'IL': '🇮🇱'
 }
 
 def get_flag(code):
-    return FLAG_EMOJI.get(code, 'Global')
+    return FLAG_EMOJI.get(code, '🌐')
 
 def extract_ip_port(link):
     try:
