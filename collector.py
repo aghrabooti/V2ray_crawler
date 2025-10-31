@@ -13,7 +13,7 @@ def load_channels():
         print("channels.txt not found, using default channels")
         return ['@v2rayngvpn', '@v2raycollector']
 
-BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+BOT_TOKEN = os.getenv('8384616715:AAHOXxcY8c7MQAiMQAh6ZX-eQeLN6rr9MNY')
 CHANNELS = load_channels()
 MAX_CONFIGS = 300
 OUTPUT_FILE = 'sub.txt'
