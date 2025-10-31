@@ -9,7 +9,7 @@ API_HASH = os.getenv('TELEGRAM_API_HASH', '35a9246b9e00de8c09c5290e062d50a7')
 
 CHANNEL = '@DailyV2Proxy'
 OUTPUT_FILE = 'sub.txt'
-
+SESSION_FILE = 'session.session'
 client = TelegramClient('session', API_ID, API_HASH)
 
 async def main():
