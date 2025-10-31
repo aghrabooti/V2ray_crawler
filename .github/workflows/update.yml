@@ -1,46 +1,31 @@
-name: Update V2Ray Subscription
-
+name: Update Proxy Configs
 on:
   schedule:
-    - cron: '0 */1 * * *'
+    - cron: '0 */24 * * *'
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Download GeoIP Database
-        run: |
-          wget -O GeoLite2-Country.mmdb.gz https://github.com/wp-statistics/GeoLite2-Country/raw/master/GeoLite2-Country.mmdb.gz
-          gunzip GeoLite2-Country.mmdb.gz
-          ls -la GeoLite2-Country.mmdb
-
+          python-version: '3.10'
+      
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Run extraction
-        env:
-          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
-          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
-        run: python extract.py
-
-      - name: Commit and push
+      
+      - name: Run collector
+        run: python collector.py
+      
+      - name: Commit and push if changed
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add sub.txt
-          if git diff --quiet --staged; then
-            echo "No changes"
-          else
-            git commit -m "Update subscription $(date)"
-            git push
-          fi
+          git diff --staged --quiet || git commit -m "Update proxy configs"
+          git push
