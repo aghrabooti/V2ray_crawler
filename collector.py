@@ -5,7 +5,7 @@ from telegram import Bot
 from telegram.ext import Application
 
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-CHANNELS = load.channels()
+CHANNELS = loadـchannels()
 MAX_CONFIGS = 300
 OUTPUT_FILE = 'sub.txt'
 
