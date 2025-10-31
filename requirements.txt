@@ -1,3 +1,4 @@
 telethon
 requests
 geoip2
+beautifulsoup4
