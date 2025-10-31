@@ -1,55 +1,66 @@
-import asyncio
-from telethon import TelegramClient
+import requests
+from bs4 import BeautifulSoup
 import re
-import os
+import json
+import base64
+from urllib.parse import urlparse
 
-# اطلاعات شخصی
-API_ID = int(os.getenv('TELEGRAM_API_ID', '20221005'))
-API_HASH = os.getenv('TELEGRAM_API_HASH', '35a9246b9e00de8c09c5290e062d50a7')
+def load_channels():
+    try:
+        with open('channels.txt', 'r', encoding='utf-8') as f:
+            channels = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+            print(f"Loaded {len(channels)} channels from file")
+            return channels
+    except FileNotFoundError:
+        print("channels.txt not found, using default channels")
+        return ['v2rayngvpn', 'v2raycollector']
 
-CHANNEL = '@DailyV2Proxy'
+CHANNELS = load_channels()
+MAX_CONFIGS = 300
 OUTPUT_FILE = 'sub.txt'
-SESSION_FILE = 'session.session'
-client = TelegramClient('session', API_ID, API_HASH)
 
-async def main():
-    await client.start()
-    configs = set()
+def get_channel_messages(channel_username):
+    url = f"https://t.me/s/{channel_username}"
+    configs = []
+    
+    try:
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        messages = soup.find_all('div', class_='tgme_widget_message_text')
+        
+        for message in messages[-50:]:
+            text = message.get_text()
+            links = re.findall(
+                r'(vmess://[^\s\n]+|vless://[^\s\n]+|trojan://[^\s\n]+|ss://[^\s\n]+)', 
+                text, 
+                re.IGNORECASE
+            )
+            configs.extend(links)
+            
+        print(f"{channel_username}: {len(configs)} configs")
+        return configs
+        
+    except Exception as e:
+        print(f"{channel_username}: {e}")
+        return []
 
-    # فقط برای شناسایی پروتکل (بدون گروه)
-    pattern = r'(?i)(vmess|vless|trojan|ss|shadowsocks|socks|http|https)://[^\s\n]+'
-
-    print("در حال خواندن پیام‌ها از کانال...")
-    async for message in client.iter_messages(CHANNEL, limit=5000):
-        text = ""
-        if message.text:
-            text += message.text + "\n"
-        if message.media and hasattr(message.media, 'document') and message.message:
-            text += message.message + "\n"
-        if message.fwd_from and message.fwd_from.channel_post:
-            try:
-                fwd_msg = await client.get_messages(message.fwd_from.from_id, ids=message.fwd_from.channel_post)
-                if fwd_msg and fwd_msg.text:
-                    text += fwd_msg.text + "\n"
-            except:
-                pass
-
-        # کل لینک رو بگیر
-        for match in re.finditer(pattern, text):
-            full_link = match.group(0)  # کل متن لینک
-            configs.add(full_link.strip())
-
-    print(f"تعداد لینک‌های کامل پیدا شده: {len(configs)}")
-
+def main():
+    print("Starting proxy config collector...")
+    
+    all_configs = []
+    
+    for channel in CHANNELS:
+        configs = get_channel_messages(channel)
+        all_configs.extend(configs)
+    
+    unique_configs = list(set(all_configs))[:MAX_CONFIGS]
+    
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        for link in sorted(configs):
-            # فقط قسمت قبل از # رو نگه دار
-            base_link = link.split('#', 1)[0] if '#' in link else link
-            # اسم جدید: Aghrab
-            new_link = f"{base_link}#Aghrab"
-            f.write(new_link + '\n')
-
-    print(f"{len(configs)} کانفیگ کامل با اسم 'Aghrab' ذخیره شد → {OUTPUT_FILE}")
+        for config in unique_configs:
+            f.write(config + '\n')
+    
+    print(f"Done! {len(unique_configs)} configs saved to {OUTPUT_FILE}")
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
