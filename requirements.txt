@@ -2,3 +2,4 @@ telethon
 requests
 geoip2
 beautifulsoup4
+python-telegram-bot==20.7
