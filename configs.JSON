@@ -1,0 +1,90 @@
+[
+  {
+    "link": "vless://694d192c-d8ef-44e8-a128-9a86abed7cd9@146.75.123.82:80?mode=auto&path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=fotofactory.pk&type=xhttp#%D9%87%D8%B1%20%D8%B1%D9%88%D8%B2%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%D9%86%DA%AF%20%D8%AC%D8%AF%DB%8C%D8%AF%20%D9%82%D8%B1%D8%A7%D8%B1%20%D9%85%DB%8C%D8%AF%DB%8C%D9%85.%20tm%E2%9A%A1%7C%40VIPFASTSPEED`",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "146.75.123.82",
+    "port": 80,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://25f6398e-56c3-4b9e-85e2-fa71448fe740@172.66.40.99:8080?path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=G.lightning2025.top&type=ws#tm%E2%9A%A1%7C%40VIPFASTSPEED`",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "172.66.40.99",
+    "port": 8080,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://f63db5eb-1e22-4716-84b9-fbc4a3064db8@172.66.40.99:8080?path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=c.lightning-channel2.ir&type=ws#tm%E2%9A%A1%7C%40VIPFASTSPEED%20%20%D9%87%D8%B1%20%D8%B1%D9%88%D8%B2%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%D9%86%DA%AF%20%D8%AC%D8%AF%DB%8C%D8%AF%20%D9%82%D8%B1%D8%A7%D8%B1%20%D9%85%DB%8C%D8%AF%DB%8C%D9%85`",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "172.66.40.99",
+    "port": 8080,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://ac9492e3-c3f8-40d5-aa77-56e4ea976c34@speedtestcustom.com:80?mode=auto&path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=fotofactory.pk&type=xhttp#%40VIPFASTSPEED%20%D9%87%D8%B1%20%D8%B1%D9%88%D8%B2%20%D8%AF%D8%A7%D8%AE%D9%84%20%DA%86%D9%86%D9%84%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%D9%86%DA%AF%20%D8%B1%D8%A7%DB%8C%DA%AF%D8%A7%D9%86%20%D9%85%DB%8C%D8%B2%D8%A7%D8%B1%DB%8C%D9%85```",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "speedtestcustom.com",
+    "port": 80,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://a98b1a4d-02d5-442b-a80e-928a1f7f81b4@speedtestcustom.com:80?mode=auto&path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=fotofactory.pk&type=xhttp#tm%E2%9A%A1%7C%40VIPFASTSPEED%20%D9%87%D8%B1%20%D8%B1%D9%88%D8%B2%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%D9%86%DA%AF%20%D8%AC%D8%AF%DB%8C%D8%AF%20%D9%85%DB%8C%D8%B2%D8%A7%D8%B1%DB%8C%D9%85`",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "speedtestcustom.com",
+    "port": 80,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://fad93457-35f3-4f1d-a4ad-c4be5b6d7124@speedtestcustom.com:80?mode=auto&path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=fotofactory.pk&type=xhttp#tm%E2%9A%A1%7C%40VIPFASTSPEED%20%D9%87%D8%B1%20%D8%B1%D9%88%D8%B2%20%D8%AF%D8%A7%D8%AE%D9%84%20%DA%86%D9%86%D9%84%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%D9%86%DA%AF%20%D8%B1%D8%A7%DB%8C%DA%AF%D8%A7%D9%86%20%D9%85%DB%8C%D8%B2%D8%A7%D8%B1%DB%8C%D9%85```",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "speedtestcustom.com",
+    "port": 80,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://e4ecab37-065b-4056-9d56-2a7bae1f125d@speedtestcustom.com:80?mode=auto&path=%2F-LiV2ry%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL-%40LIGHTNING6-TEL--%40LIGHTNING6-JOIN-%40LIGHTNING6-TEL--%40LIGHTNING6%3Fed%3D2048&security=none&encryption=none&host=fotofactory.pk&type=xhttp#tm%E2%9A%A1%7C%40VIPFASTSPEED%20%D9%87%D8%B1%20%D8%B1%D9%88%D8%B2%20%D8%AF%D8%A7%D8%AE%D9%84%20%DA%86%D9%86%D9%84%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%D9%86%DA%AF%20%D8%B1%D8%A7%DB%8C%DA%AF%D8%A7%D9%86%20%D9%85%DB%8C%D8%B2%D8%A7%D8%B1%DB%8C%D9%85`",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "speedtestcustom.com",
+    "port": 80,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://V2RAXX---@V2RAXX-channel.cataba.ir:6666?mode=gun&security=none&encryption=none&type=grpc&serviceName=%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX#%F0%9F%87%A9%F0%9F%87%AAALL%C2%B2%20%40V2RAX",
+    "channel": "@v2raxx",
+    "tcp": false,
+    "ip": "v2raxx-channel.cataba.ir",
+    "port": 6666,
+    "note": "tcp_closed"
+  },
+  {
+    "link": "vless://V2RAXX---@V2RAXX-channel.cataba.ir:2053?path=%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX%2F%40V2RAXX&security=none&encryption=none&type=ws#%F0%9F%87%A9%F0%9F%87%AAALL%C2%B9%20%40V2RAXX`",
+    "channel": "@v2raxx",
+    "tcp": false,
+    "ip": "v2raxx-channel.cataba.ir",
+    "port": 2053,
+    "note": "tcp_closed"
+  },
+  {
+    "link": "vless://9f5feed9-7f4b-4602-a5e8-e34b7b377b43@sqorvzmvuxam.eu-central-1.clawcloudrun.com:80?type=xhttp&path=%2F&host=ygnunpjabkla.eu-central-1.clawcloudrun.com&mode=auto&security=none#%D8%AA%D9%84%DA%AF%D8%B1%D8%A7%D9%85%20%D8%B3%D8%B1%DA%86%20%D8%A8%D8%B2%D9%86%20%D9%87%D8%B1%D9%88%D8%B2%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF%20%D8%B1%D8%A7%DB%8C%DA%AF%D8%A7%D9%86%20%D8%AF%D8%A7%D8%B1%DB%8C%D9%85%20%40VipFastSpeed```",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "sqorvzmvuxam.eu-central-1.clawcloudrun.com",
+    "port": 80,
+    "note": "tcp_open"
+  },
+  {
+    "link": "vless://f922f5f4-6ee1-4bd2-a1ee-6b9dc223e223@btmnwiknurwp.eu-central-1.clawcloudrun.com:80?type=xhttp&path=%2Fed%3F%3D2048&host=pmjwxuuhcrmy.eu-central-1.clawcloudrun.com&mode=auto&security=none#%D9%87%D8%B1%D9%88%D8%B2%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF%20%D8%AC%D8%AF%DB%8C%D8%AF%20%D8%AF%D8%A7%D8%B1%DB%8C%D9%85%20%D8%B9%D8%B6%D9%88%20%D8%A8%D8%A7%D8%B4%20%D8%AA%D8%A7%20%D9%87%D9%85%DB%8C%D8%B4%D9%87%20%D9%88%D8%B5%D9%84%20%D8%A8%D8%A7%D8%B4%DB%8C%20%7C%20VipFastSpeed%40```",
+    "channel": "@vipfastspeed",
+    "tcp": true,
+    "ip": "btmnwiknurwp.eu-central-1.clawcloudrun.com",
+    "port": 80,
+    "note": "tcp_open"
+  }
+]
