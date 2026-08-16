@@ -2,15 +2,16 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-def load_channels():
-    try:
-        with open('channels.txt', 'r', encoding='utf-8') as f:
-            channels = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-            return channels
-    except FileNotFoundError:
-        return ['v2rayngvpn', 'v2raycollector']
+# def load_channels():
+#     try:
+#         with open('channels.txt', 'r', encoding='utf-8') as f:
+#             channels = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+#             return channels
+#     except FileNotFoundError:
+#         return ['v2rayngvpn', 'v2raycollector']
 
-CHANNELS = load_channels()
+# CHANNELS = load_channels()
+CHANNELS = ['DailyV2Proxy']
 MAX_CONFIGS = 300
 OUTPUT_FILE = 'sub.txt'
 
