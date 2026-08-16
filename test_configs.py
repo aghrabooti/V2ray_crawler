@@ -32,7 +32,6 @@ TEST_URL = "https://www.google.com"
 
 # GeoIP service
 GEOIP_URL = "http://ip-api.com/json/?fields=status,country,countryCode,query"
-
 CONFIG_NAME = "on bir mehmet buyuk"
 
 
@@ -828,15 +827,15 @@ def test_proxy(session):
 # ============================================================
 
 def get_exit_country(session):
-
+    
     try:
 
         response = session.get(
-
             GEOIP_URL,
-
-            timeout=TEST_TIMEOUT
-
+            timeout=TEST_TIMEOUT,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
         )
 
         response.raise_for_status()
@@ -844,7 +843,6 @@ def get_exit_country(session):
         data = response.json()
 
         if data.get("status") != "success":
-
             return None, None, None
 
         country_code = data.get(
@@ -865,15 +863,18 @@ def get_exit_country(session):
             ip
         )
 
-    except Exception:
+    except Exception as e:
+
+        print(
+            "GEOIP ERROR:",
+            e
+        )
 
         return (
             None,
             None,
             None
         )
-
-
 # ============================================================
 # TEST SINGLE CONFIG
 # ============================================================
@@ -1337,14 +1338,12 @@ def main():
             ok = result[0]
 
             if ok:
-
+            
                 latency = result[1]
-                
-                country_code, country, exit_ip = (
-                    get_exit_country(
-                        get_proxy_session()
-                    )
-                )
+
+                country_code = result[2]
+                country = result[3]
+                exit_ip = result[4]
 
                 healthy_count += 1
 
