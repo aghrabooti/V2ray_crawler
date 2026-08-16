@@ -1208,9 +1208,9 @@ def rename_config(
 # ============================================================
 
 def main():
-
+    
     # --------------------------------------------------------
-    # 1. Load NEW configs from sub.txt
+    # 1. Load configs from sub.txt
     # --------------------------------------------------------
 
     scraped_configs = load_configs(
@@ -1241,14 +1241,14 @@ def main():
     print("=" * 60)
 
     print(
-        f"Existing working configs: "
+        f"Existing configs: "
         f"{len(existing_configs)}"
     )
 
     # --------------------------------------------------------
-    # 3. Normalize old configs
+    # 3. Normalize everything
     #
-    # The #name is ignored.
+    # Remove #name before comparing.
     # --------------------------------------------------------
 
     existing_clean = {
@@ -1261,10 +1261,6 @@ def main():
 
     }
 
-    # --------------------------------------------------------
-    # 4. Normalize scraped configs
-    # --------------------------------------------------------
-
     scraped_clean = {
 
         clean_config(config)
@@ -1276,129 +1272,143 @@ def main():
     }
 
     # --------------------------------------------------------
-    # 5. Find ONLY genuinely new configs
+    # 4. Combine existing + new
+    #
+    # Every unique config will be tested.
     # --------------------------------------------------------
 
-    new_configs = [
-
-        config
-
-        for config in scraped_clean
-
-        if config not in existing_clean
-
-    ]
+    all_configs = list(
+        dict.fromkeys(
+            list(existing_clean)
+            + list(scraped_clean)
+        )
+    )
 
     print()
     print("=" * 60)
-    print("NEW CONFIGS")
+    print("CONFIGS TO TEST")
     print("=" * 60)
 
     print(
-        f"New configs to test: "
-        f"{len(new_configs)}"
-    )
-
-    print(
-        f"Already known: "
+        f"Existing: "
         f"{len(existing_clean)}"
     )
 
+    print(
+        f"From sub.txt: "
+        f"{len(scraped_clean)}"
+    )
+
+    print(
+        f"Unique configs to test: "
+        f"{len(all_configs)}"
+    )
+
     # --------------------------------------------------------
-    # 6. Test ONLY new configs
+    # 5. Test ALL configs
     # --------------------------------------------------------
 
-    working_new = []
+    working_configs = []
 
-    for index, config in enumerate(
-        new_configs,
-        1
-    ):
+    healthy_count = 0
+    failed_count = 0
+
+    total = len(all_configs)
+
+    print()
+    print("=" * 60)
+    print("TESTING")
+    print("=" * 60)
+
+
+    for index, config in enumerate(all_configs, 1):
 
         print(
-
-            f"[{index}/{len(new_configs)}] "
-
+            f"[{index}/{total}] "
             f"{config[:55]}...",
-
             end=" ",
-
             flush=True
-
         )
 
         try:
 
-            result = test_config(
-                config
-            )
+            result = test_config(config)
 
             ok = result[0]
 
             if ok:
 
                 latency = result[1]
-                country_code = result[2]
-                country = result[3]
-                exit_ip = result[4]
+                
+                country_code, country, exit_ip = (
+                    get_exit_country(
+                        get_proxy_session()
+                    )
+                )
+
+                healthy_count += 1
 
                 flag = country_code_to_flag(
                     country_code
                 )
 
                 print(
-
                     f"OK - "
                     f"{latency:.0f} ms - "
                     f"{flag or '?'} "
                     f"{country or 'Unknown'} - "
                     f"{exit_ip or 'Unknown IP'}"
-
                 )
 
-                working_new.append(
-
+                working_configs.append(
                     (
                         latency,
                         config,
                         country_code
                     )
-
                 )
 
             else:
 
+                failed_count += 1
+
                 error = result[-1]
 
-                print(
-                    "FAILED"
-                )
+                print("FAILED")
 
                 if error:
-
                     print(
                         f"    {error}"
                     )
 
+
         except Exception as e:
+
+            failed_count += 1
 
             print(
                 f"ERROR - {e}"
             )
 
+
+        print(
+            f"working: {healthy_count} | "
+            f"not working: {failed_count} | "
+            f"باقی مانده: {total-index}"
+        )
     # --------------------------------------------------------
-    # 7. Sort new configs by latency
+    # 6. Sort working configs by latency
     # --------------------------------------------------------
 
-    working_new.sort(
+    working_configs.sort(
         key=lambda x: x[0]
     )
 
     # --------------------------------------------------------
-    # 8. Rename new configs
+    # 7. Rename working configs
     # --------------------------------------------------------
 
-    new_final = [
+    final_configs = [
 
         rename_config(
             config,
@@ -1406,55 +1416,35 @@ def main():
         )
 
         for latency, config, country_code
-        in working_new
+        in working_configs
 
     ]
 
     # --------------------------------------------------------
-    # 9. Keep existing working configs
-    # --------------------------------------------------------
-
-    final_configs = (
-
-        existing_configs
-        + new_final
-
-    )
-
-    # --------------------------------------------------------
-    # 10. Remove duplicates
-    # --------------------------------------------------------
-
-    unique_final = []
-
-    seen = set()
-
-    for config in final_configs:
-
-        clean = clean_config(
-            config
-        )
-
-        if clean not in seen:
-
-            seen.add(clean)
-
-            unique_final.append(
-                config
-            )
-
-    # --------------------------------------------------------
-    # 11. Save
+    # 8. Save ONLY working configs
+    #
+    # Failed configs are automatically removed.
     # --------------------------------------------------------
 
     save_configs(
         SUBLINK_FILE,
-        unique_final
+        final_configs
     )
 
     # --------------------------------------------------------
-    # 12. Statistics
+    # 9. Statistics
     # --------------------------------------------------------
+
+    new_configs = (
+        scraped_clean - existing_clean
+    )
+
+    removed_configs = (
+        existing_clean - {
+            clean_config(config)
+            for config in final_configs
+        }
+    )
 
     print()
     print("=" * 60)
@@ -1462,7 +1452,7 @@ def main():
     print("=" * 60)
 
     print(
-        f"Previously working: "
+        f"Previously in sublink: "
         f"{len(existing_clean)}"
     )
 
@@ -1472,31 +1462,39 @@ def main():
     )
 
     print(
-        f"New configs tested: "
+        f"New configs found: "
         f"{len(new_configs)}"
     )
 
     print(
-        f"New working configs: "
-        f"{len(new_final)}"
+        f"Total tested: "
+        f"{total}"
+    )
+
+    print(
+        f"Healthy: "
+        f"{healthy_count}"
+    )
+
+    print(
+        f"Failed: "
+        f"{failed_count}"
+    )
+
+    print(
+        f"Removed from sublink: "
+        f"{len(removed_configs)}"
     )
 
     print(
         f"Final working configs: "
-        f"{len(unique_final)}"
+        f"{len(final_configs)}"
     )
 
     print(
         f"Output: "
         f"{SUBLINK_FILE}"
     )
-
-    print()
-    print(
-        "Existing configs were NOT retested."
-    )
-
-
 # ============================================================
 # RUN
 # ============================================================
