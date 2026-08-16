@@ -27,7 +27,11 @@ SOCKS_PORT = 10808
 START_TIMEOUT = 5
 TEST_TIMEOUT = 8
 
+# Main connectivity test
 TEST_URL = "https://www.google.com"
+
+# GeoIP service
+GEOIP_URL = "http://ip-api.com/json/?fields=status,country,countryCode,query"
 
 CONFIG_NAME = "on bir mehmet buyuk"
 
@@ -36,11 +40,45 @@ CONFIG_NAME = "on bir mehmet buyuk"
 # DATE / NAME
 # ============================================================
 
-def get_config_name():
+def get_config_name(country_code=None):
 
     date = datetime.now().strftime("%Y-%m-%d")
 
+    if country_code:
+        flag = country_code_to_flag(country_code)
+
+        if flag:
+            return f"{flag} {CONFIG_NAME} {date}"
+
     return f"{CONFIG_NAME} {date}"
+
+
+# ============================================================
+# COUNTRY CODE -> FLAG
+# ============================================================
+
+def country_code_to_flag(code):
+
+    if not code:
+        return ""
+
+    code = code.upper().strip()
+
+    if len(code) != 2:
+        return ""
+
+    try:
+
+        return "".join(
+            chr(
+                127397 + ord(char)
+            )
+            for char in code
+        )
+
+    except Exception:
+
+        return ""
 
 
 # ============================================================
@@ -54,6 +92,7 @@ def decode_base64(value):
     value += "=" * (-len(value) % 4)
 
     try:
+
         return base64.urlsafe_b64decode(
             value
         ).decode("utf-8")
@@ -730,28 +769,40 @@ def wait_for_port(process):
 
 
 # ============================================================
-# TEST PROXY
+# PROXY SESSION
 # ============================================================
 
-def test_proxy():
+def get_proxy_session():
 
-    proxies = {
+    session = requests.Session()
 
-        "http":
-            f"socks5h://{SOCKS_HOST}:{SOCKS_PORT}",
+    proxy = (
+        f"socks5h://"
+        f"{SOCKS_HOST}:"
+        f"{SOCKS_PORT}"
+    )
 
-        "https":
-            f"socks5h://{SOCKS_HOST}:{SOCKS_PORT}"
+    session.proxies.update({
 
-    }
+        "http": proxy,
+        "https": proxy
+
+    })
+
+    return session
+
+
+# ============================================================
+# TEST GOOGLE
+# ============================================================
+
+def test_proxy(session):
 
     start = time.perf_counter()
 
-    response = requests.get(
+    response = session.get(
 
         TEST_URL,
-
-        proxies=proxies,
 
         timeout=TEST_TIMEOUT,
 
@@ -770,6 +821,57 @@ def test_proxy():
         response.status_code,
         latency
     )
+
+
+# ============================================================
+# GET REAL EXIT COUNTRY
+# ============================================================
+
+def get_exit_country(session):
+
+    try:
+
+        response = session.get(
+
+            GEOIP_URL,
+
+            timeout=TEST_TIMEOUT
+
+        )
+
+        response.raise_for_status()
+
+        data = response.json()
+
+        if data.get("status") != "success":
+
+            return None, None, None
+
+        country_code = data.get(
+            "countryCode"
+        )
+
+        country = data.get(
+            "country"
+        )
+
+        ip = data.get(
+            "query"
+        )
+
+        return (
+            country_code,
+            country,
+            ip
+        )
+
+    except Exception:
+
+        return (
+            None,
+            None,
+            None
+        )
 
 
 # ============================================================
@@ -799,7 +901,9 @@ def test_config(uri):
             outbound
         )
 
-        # Write config FIRST
+        # ----------------------------------------------------
+        # Write Xray config
+        # ----------------------------------------------------
 
         with open(
             config_path,
@@ -814,7 +918,9 @@ def test_config(uri):
                 indent=2
             )
 
-        # Validate config
+        # ----------------------------------------------------
+        # Validate Xray config
+        # ----------------------------------------------------
 
         validation = subprocess.run(
 
@@ -844,11 +950,15 @@ def test_config(uri):
             return (
                 False,
                 None,
+                None,
+                None,
                 "XRAY_CONFIG_INVALID: "
                 + error[-500:]
             )
 
+        # ----------------------------------------------------
         # Start Xray
+        # ----------------------------------------------------
 
         process = subprocess.Popen(
 
@@ -867,57 +977,92 @@ def test_config(uri):
 
         )
 
-        # Wait for SOCKS port
+        # ----------------------------------------------------
+        # Wait for SOCKS
+        # ----------------------------------------------------
 
         if not wait_for_port(
             process
         ):
 
             try:
+
                 stderr = process.stderr.read()
+
             except Exception:
+
                 stderr = ""
 
             return (
                 False,
                 None,
+                None,
+                None,
                 "XRAY_START_FAILED: "
                 + stderr[-500:]
             )
 
-        # Test actual traffic
+        # ----------------------------------------------------
+        # Create proxy session
+        # ----------------------------------------------------
+
+        session = get_proxy_session()
+
+        # ----------------------------------------------------
+        # Test Google
+        # ----------------------------------------------------
 
         try:
 
-            status, latency = test_proxy()
+            status, latency = test_proxy(
+                session
+            )
 
         except Exception as e:
 
             return (
                 False,
                 None,
+                None,
+                None,
                 "CONNECTION_FAILED: "
                 + str(e)
             )
 
-        if status in (200, 204):
+        if status not in (200, 204):
 
             return (
-                True,
+                False,
                 latency,
-                None
+                None,
+                None,
+                f"HTTP_STATUS_{status}"
             )
 
+        # ----------------------------------------------------
+        # Get REAL exit IP / country
+        # ----------------------------------------------------
+
+        country_code, country, exit_ip = (
+            get_exit_country(
+                session
+            )
+        )
+
         return (
-            False,
+            True,
             latency,
-            f"HTTP_STATUS_{status}"
+            country_code,
+            country,
+            exit_ip
         )
 
     except Exception as e:
 
         return (
             False,
+            None,
+            None,
             None,
             f"CONFIG_ERROR: {e}"
         )
@@ -938,16 +1083,23 @@ def test_config(uri):
 
                 try:
                     process.kill()
+
                 except Exception:
                     pass
 
         try:
-            os.remove(config_path)
+            os.remove(
+                config_path
+            )
+
         except Exception:
             pass
 
         try:
-            os.rmdir(temp_dir)
+            os.rmdir(
+                temp_dir
+            )
+
         except Exception:
             pass
 
@@ -958,7 +1110,10 @@ def test_config(uri):
 
 def load_configs(filename):
 
-    if not os.path.exists(filename):
+    if not os.path.exists(
+        filename
+    ):
+
         return []
 
     with open(
@@ -1008,7 +1163,7 @@ def save_configs(
 
 
 # ============================================================
-# REMOVE CONFIG NAME
+# CLEAN CONFIG
 # ============================================================
 
 def clean_config(config):
@@ -1016,7 +1171,7 @@ def clean_config(config):
     return config.split(
         "#",
         1
-    )[0]
+    )[0].strip()
 
 
 # ============================================================
@@ -1025,11 +1180,15 @@ def clean_config(config):
 
 def rename_config(
     config,
-    name
+    country_code
 ):
 
     config = clean_config(
         config
+    )
+
+    name = get_config_name(
+        country_code
     )
 
     safe_name = requests.utils.quote(
@@ -1049,60 +1208,85 @@ def rename_config(
 # ============================================================
 
 def main():
-    
+
     # --------------------------------------------------------
-    # 1. Load scraped configs from sub.txt
+    # 1. Load NEW configs from sub.txt
     # --------------------------------------------------------
 
-    scraped_configs = load_configs(SUB_FILE)
+    scraped_configs = load_configs(
+        SUB_FILE
+    )
 
     print()
     print("=" * 60)
-    print("SCRAPED CONFIGS")
+    print("SUB.TXT")
     print("=" * 60)
 
-    print(f"Configs in {SUB_FILE}: {len(scraped_configs)}")
+    print(
+        f"Configs in {SUB_FILE}: "
+        f"{len(scraped_configs)}"
+    )
 
     # --------------------------------------------------------
     # 2. Load existing working configs
     # --------------------------------------------------------
 
-    existing_configs = load_configs(SUBLINK_FILE)
+    existing_configs = load_configs(
+        SUBLINK_FILE
+    )
 
     print()
     print("=" * 60)
     print("CURRENT SUBLINK")
     print("=" * 60)
 
-    print(f"Existing working configs: {len(existing_configs)}")
+    print(
+        f"Existing working configs: "
+        f"{len(existing_configs)}"
+    )
 
     # --------------------------------------------------------
-    # 3. Normalize configs
+    # 3. Normalize old configs
     #
-    # Remove #name so comparison is based only on the
-    # actual connection string.
+    # The #name is ignored.
     # --------------------------------------------------------
 
     existing_clean = {
-        config.split("#", 1)[0].strip()
-        for config in existing_configs
-        if config.strip()
-    }
 
-    scraped_clean = {
-        config.split("#", 1)[0].strip()
-        for config in scraped_configs
+        clean_config(config)
+
+        for config in existing_configs
+
         if config.strip()
+
     }
 
     # --------------------------------------------------------
-    # 4. Find ONLY new configs
+    # 4. Normalize scraped configs
+    # --------------------------------------------------------
+
+    scraped_clean = {
+
+        clean_config(config)
+
+        for config in scraped_configs
+
+        if config.strip()
+
+    }
+
+    # --------------------------------------------------------
+    # 5. Find ONLY genuinely new configs
     # --------------------------------------------------------
 
     new_configs = [
+
         config
+
         for config in scraped_clean
+
         if config not in existing_clean
+
     ]
 
     print()
@@ -1110,46 +1294,88 @@ def main():
     print("NEW CONFIGS")
     print("=" * 60)
 
-    print(f"New configs to test: {len(new_configs)}")
-    print(f"Already known: {len(existing_clean)}")
+    print(
+        f"New configs to test: "
+        f"{len(new_configs)}"
+    )
+
+    print(
+        f"Already known: "
+        f"{len(existing_clean)}"
+    )
 
     # --------------------------------------------------------
-    # 5. Test ONLY new configs
+    # 6. Test ONLY new configs
     # --------------------------------------------------------
 
     working_new = []
 
-    for index, config in enumerate(new_configs, 1):
+    for index, config in enumerate(
+        new_configs,
+        1
+    ):
 
         print(
+
             f"[{index}/{len(new_configs)}] "
+
             f"{config[:55]}...",
+
             end=" ",
+
             flush=True
+
         )
 
         try:
 
-            ok, latency, error = test_config(config)
+            result = test_config(
+                config
+            )
+
+            ok = result[0]
 
             if ok:
 
+                latency = result[1]
+                country_code = result[2]
+                country = result[3]
+                exit_ip = result[4]
+
+                flag = country_code_to_flag(
+                    country_code
+                )
+
                 print(
-                    f"OK - {latency:.0f} ms"
+
+                    f"OK - "
+                    f"{latency:.0f} ms - "
+                    f"{flag or '?'} "
+                    f"{country or 'Unknown'} - "
+                    f"{exit_ip or 'Unknown IP'}"
+
                 )
 
                 working_new.append(
+
                     (
                         latency,
-                        config
+                        config,
+                        country_code
                     )
+
                 )
 
             else:
 
-                print("FAILED")
+                error = result[-1]
+
+                print(
+                    "FAILED"
+                )
 
                 if error:
+
                     print(
                         f"    {error}"
                     )
@@ -1161,7 +1387,7 @@ def main():
             )
 
     # --------------------------------------------------------
-    # 6. Sort new working configs
+    # 7. Sort new configs by latency
     # --------------------------------------------------------
 
     working_new.sort(
@@ -1169,30 +1395,34 @@ def main():
     )
 
     # --------------------------------------------------------
-    # 7. Rename new configs
+    # 8. Rename new configs
     # --------------------------------------------------------
 
-    current_name = get_config_name()
-
     new_final = [
+
         rename_config(
             config,
-            current_name
+            country_code
         )
-        for latency, config in working_new
+
+        for latency, config, country_code
+        in working_new
+
     ]
 
     # --------------------------------------------------------
-    # 8. Keep existing working configs
+    # 9. Keep existing working configs
     # --------------------------------------------------------
 
     final_configs = (
-        existing_configs +
-        new_final
+
+        existing_configs
+        + new_final
+
     )
 
     # --------------------------------------------------------
-    # 9. Remove duplicates
+    # 10. Remove duplicates
     # --------------------------------------------------------
 
     unique_final = []
@@ -1201,10 +1431,9 @@ def main():
 
     for config in final_configs:
 
-        clean = config.split(
-            "#",
-            1
-        )[0].strip()
+        clean = clean_config(
+            config
+        )
 
         if clean not in seen:
 
@@ -1215,7 +1444,7 @@ def main():
             )
 
     # --------------------------------------------------------
-    # 10. Save
+    # 11. Save
     # --------------------------------------------------------
 
     save_configs(
@@ -1224,7 +1453,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # 11. Statistics
+    # 12. Statistics
     # --------------------------------------------------------
 
     print()
@@ -1238,7 +1467,7 @@ def main():
     )
 
     print(
-        f"Configs from sub.txt: "
+        f"Configs in sub.txt: "
         f"{len(scraped_clean)}"
     )
 
@@ -1262,11 +1491,16 @@ def main():
         f"{SUBLINK_FILE}"
     )
 
+    print()
     print(
-        f"Name: "
-        f"{current_name}"
+        "Existing configs were NOT retested."
     )
 
 
+# ============================================================
+# RUN
+# ============================================================
+
 if __name__ == "__main__":
+
     main()
