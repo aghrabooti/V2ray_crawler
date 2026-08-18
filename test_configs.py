@@ -1393,7 +1393,7 @@ def main():
         print(
             f"working: {healthy_count} | "
             f"not working: {failed_count} | "
-            f"باقی مانده: {total-index}"
+            f"remaining: {total-index}"
         )
     # --------------------------------------------------------
     # 6. Sort working configs by latency
