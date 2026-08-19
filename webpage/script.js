@@ -334,10 +334,14 @@ function renderConfigs() {
                                 flex
                                 items-center
                                 justify-center
-                                text-3xl
+                                overflow-hidden
                             "
                         >
-                            ${config.country.flag}
+                            <img
+                                src="https://flagcdn.com/w80/${config.countryCode.toLowerCase()}.png"
+                                alt="${config.country.name}"
+                                class="w-9 h-auto object-contain"
+                            >
                         </div>
 
 
