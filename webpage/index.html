@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ConfigHub</title>
+
+
+    <!-- Tailwind -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+    <script>
+
+        tailwind.config = {
+
+            theme: {
+
+                extend: {
+
+                    fontFamily: {
+
+                        sans: [
+                            'Inter',
+                            'system-ui',
+                            'sans-serif'
+                        ]
+
+                    },
+
+                    colors: {
+
+                        bg: '#08090d',
+
+                        card: '#101217',
+
+                        border: '#1d2028',
+
+                        accent: '#7c3aed'
+
+                    },
+
+                    boxShadow: {
+
+                        glow:
+                            '0 0 40px rgba(124, 58, 237, 0.12)'
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+
+    <!-- Leaflet -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <style>
+
+        body {
+
+            background:
+                radial-gradient(
+                    circle at 50% -20%,
+                    rgba(124, 58, 237, 0.13),
+                    transparent 35%
+                ),
+                #08090d;
+
+        }
+
+
+        .grid-bg {
+
+            background-image:
+
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+
+        }
+
+
+        .glass {
+
+            background:
+                rgba(16, 18, 23, 0.72);
+
+            backdrop-filter:
+                blur(16px);
+
+            -webkit-backdrop-filter:
+                blur(16px);
+
+        }
+
+
+        .config-card {
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+
+        }
+
+
+        .config-card:hover {
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                #303440;
+
+            background:
+                #12151c;
+
+        }
+
+
+        .copy-btn {
+
+            transition:
+                all 0.2s ease;
+
+        }
+
+
+        .copy-btn:hover {
+
+            transform:
+                translateY(-1px);
+
+        }
+
+
+        /* Leaflet dark popup */
+
+        .leaflet-popup-content-wrapper {
+
+            background:
+                #101217;
+
+            color:
+                white;
+
+            border:
+                1px solid #303440;
+
+            border-radius:
+                14px;
+
+        }
+
+
+        .leaflet-popup-tip {
+
+            background:
+                #101217;
+
+        }
+
+
+        .leaflet-popup-content {
+
+            margin:
+                14px 16px;
+
+        }
+
+
+        .leaflet-control-zoom {
+
+            border:
+                1px solid rgba(255,255,255,0.1)
+                !important;
+
+        }
+
+
+        .leaflet-control-zoom a {
+
+            background:
+                #101217 !important;
+
+            color:
+                #d1d5db !important;
+
+            border-color:
+                rgba(255,255,255,0.08)
+                !important;
+
+        }
+
+
+        .leaflet-control-zoom a:hover {
+
+            background:
+                #181b23 !important;
+
+            color:
+                white !important;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="text-white min-h-screen grid-bg">
+
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <header
+        class="
+            border-b
+            border-white/[0.06]
+            glass
+            sticky
+            top-0
+            z-50
+        "
+    >
+
+        <div
+            class="
+                max-w-6xl
+                mx-auto
+                px-5
+                md:px-8
+            "
+        >
+
+            <div
+                class="
+                    h-20
+                    flex
+                    items-center
+                    justify-between
+                "
+            >
+
+
+                <!-- LOGO -->
+
+                <a
+                    href="#"
+                    class="
+                        flex
+                        items-center
+                        gap-3
+                    "
+                >
+
+                    <div
+                        class="
+                            w-10
+                            h-10
+                            rounded-xl
+                            bg-gradient-to-br
+                            from-violet-500
+                            to-indigo-600
+                            flex
+                            items-center
+                            justify-center
+                            shadow-glow
+                        "
+                    >
+
+                        <svg
+                            class="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                        >
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 3v18m9-9H3"
+                            />
+
+                        </svg>
+
+                    </div>
+
+
+                    <div>
+
+                        <div
+                            class="
+                                font-bold
+                                text-lg
+                                tracking-tight
+                            "
+                        >
+                            ConfigHub
+                        </div>
+
+
+                        <div
+                            class="
+                                text-[11px]
+                                text-gray-500
+                            "
+                        >
+                            Free configs
+                        </div>
+
+                    </div>
+
+                </a>
+
+
+                <!-- NAV -->
+
+                <nav
+                    class="
+                        hidden
+                        md:flex
+                        items-center
+                        gap-8
+                    "
+                >
+
+                    <a
+                        href="#configs"
+                        class="
+                            text-sm
+                            text-gray-300
+                            hover:text-white
+                            transition
+                        "
+                    >
+                        Configs
+                    </a>
+
+
+                    <a
+                        href="#"
+                        class="
+                            text-sm
+                            text-gray-500
+                            hover:text-white
+                            transition
+                        "
+                    >
+                        Telegram
+                    </a>
+
+
+                    <a
+                        href="#"
+                        class="
+                            text-sm
+                            px-4
+                            py-2
+                            rounded-lg
+                            bg-white/[0.05]
+                            border
+                            border-white/[0.08]
+                            hover:bg-white/[0.09]
+                            transition
+                        "
+                    >
+                        GitHub
+                    </a>
+
+                </nav>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section
+        class="
+            relative
+            overflow-hidden
+        "
+    >
+
+        <div
+            class="
+                max-w-6xl
+                mx-auto
+                px-5
+                md:px-8
+                pt-24
+                pb-20
+            "
+        >
+
+            <div
+                class="
+                    max-w-3xl
+                "
+            >
+
+
+                <div
+                    class="
+                        inline-flex
+                        items-center
+                        gap-2
+                        px-3
+                        py-1.5
+                        rounded-full
+                        bg-violet-500/[0.08]
+                        border
+                        border-violet-500/20
+                        text-violet-300
+                        text-xs
+                        mb-7
+                    "
+                >
+
+                    <span
+                        class="
+                            w-1.5
+                            h-1.5
+                            rounded-full
+                            bg-green-400
+                            shadow-[0_0_10px_rgba(74,222,128,0.8)]
+                        "
+                    ></span>
+
+
+                    All configurations are tested
+
+                </div>
+
+
+
+                <h1
+                    class="
+                        text-5xl
+                        md:text-7xl
+                        font-bold
+                        tracking-[-0.04em]
+                        leading-[1.05]
+                    "
+                >
+
+                    Simple.
+
+                    <br>
+
+                    <span
+                        class="
+                            bg-gradient-to-r
+                            from-violet-400
+                            via-purple-400
+                            to-indigo-400
+                            bg-clip-text
+                            text-transparent
+                        "
+                    >
+                        Fast.
+                    </span>
+
+                    Reliable.
+
+                </h1>
+
+
+
+                <p
+                    class="
+                        mt-7
+                        text-gray-400
+                        text-base
+                        md:text-lg
+                        leading-8
+                        max-w-xl
+                    "
+                >
+                    A collection of tested proxy configurations.
+                    Pick a country and copy the configuration you need.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CONFIG SECTION
+    ====================================================== -->
+
+    <main
+        id="configs"
+        class="
+            max-w-6xl
+            mx-auto
+            px-5
+            md:px-8
+            pb-24
+        "
+    >
+
+
+        <!-- SECTION HEADER -->
+
+        <div
+            class="
+                flex
+                flex-col
+                md:flex-row
+                md:items-end
+                md:justify-between
+                gap-5
+                mb-8
+            "
+        >
+
+            <div>
+
+                <p
+                    class="
+                        text-xs
+                        uppercase
+                        tracking-[0.2em]
+                        text-violet-400
+                        mb-2
+                    "
+                >
+                    Configurations
+                </p>
+
+
+                <h2
+                    class="
+                        text-3xl
+                        font-bold
+                        tracking-tight
+                    "
+                >
+                    Choose your country
+                </h2>
+
+            </div>
+
+
+            <!-- COUNTRY SELECT -->
+
+            <div
+                class="
+                    relative
+                "
+            >
+
+                <select
+                    id="countrySelect"
+                    class="
+                        appearance-none
+                        bg-[#101217]
+                        border
+                        border-white/[0.08]
+                        rounded-xl
+                        pl-4
+                        pr-11
+                        py-3
+                        text-sm
+                        text-gray-300
+                        outline-none
+                        focus:border-violet-500/50
+                        transition
+                        cursor-pointer
+                    "
+                >
+
+                    <option value="ALL">
+                        All Countries
+                    </option>
+
+                </select>
+
+
+                <svg
+                    class="
+                        absolute
+                        right-4
+                        top-1/2
+                        -translate-y-1/2
+                        w-4
+                        h-4
+                        text-gray-500
+                        pointer-events-none
+                    "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                >
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m6 9 6 6 6-6"
+                    />
+
+                </svg>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             CONFIG LIST
+
+             JavaScript این قسمت را پر می‌کند.
+        ================================================== -->
+
+        <div
+            id="configList"
+            class="space-y-3"
+        >
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-white/[0.06]
+                    bg-[#101217]
+                    p-8
+                    text-center
+                "
+            >
+
+                <p
+                    class="
+                        text-gray-500
+                        text-sm
+                    "
+                >
+                    Loading configurations...
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             WORLD CONFIG MAP
+        ================================================== -->
+
+        <section class="mt-8">
+
+            <div
+                class="
+                    relative
+                    overflow-hidden
+                    rounded-3xl
+                    border
+                    border-white/10
+                    bg-[#0b0f19]
+                    shadow-2xl
+                "
+            >
+
+
+                <!-- MAP HEADER -->
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        border-b
+                        border-white/10
+                        px-6
+                        py-5
+                    "
+                >
+
+                    <div>
+
+                        <h2
+                            class="
+                                text-xl
+                                font-bold
+                                text-white
+                            "
+                        >
+                            Active Configurations
+                        </h2>
+
+
+                        <p
+                            class="
+                                mt-1
+                                text-sm
+                                text-gray-400
+                            "
+                        >
+                            Server locations around the world
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            flex
+                            items-center
+                            gap-2
+                            rounded-full
+                            border
+                            border-emerald-400/20
+                            bg-emerald-400/10
+                            px-3
+                            py-1.5
+                        "
+                    >
+
+                        <span
+                            class="
+                                h-2
+                                w-2
+                                rounded-full
+                                bg-emerald-400
+                                shadow-[0_0_10px_#34d399]
+                            "
+                        ></span>
+
+
+                        <span
+                            class="
+                                text-xs
+                                text-emerald-300
+                            "
+                        >
+                            Live
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- MAP -->
+
+                <div
+                    class="
+                        relative
+                    "
+                >
+
+                    <div
+                        id="worldMap"
+                        class="
+                            h-[480px]
+                            w-full
+                        "
+                    ></div>
+
+
+                    <!-- MAP LEGEND -->
+
+                    <div
+                        class="
+                            absolute
+                            bottom-5
+                            left-5
+                            z-[1000]
+                            rounded-2xl
+                            border
+                            border-white/10
+                            bg-[#0b0f19]/90
+                            px-4
+                            py-3
+                            shadow-xl
+                            backdrop-blur-xl
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                items-center
+                                gap-2
+                            "
+                        >
+
+                            <span
+                                class="
+                                    h-3
+                                    w-3
+                                    rounded-full
+                                    bg-cyan-400
+                                    shadow-[0_0_12px_#22d3ee]
+                                "
+                            ></span>
+
+
+                            <span
+                                class="
+                                    text-xs
+                                    text-gray-300
+                                "
+                            >
+                                Country with configurations
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer
+        class="
+            border-t
+            border-white/[0.06]
+            bg-black/20
+        "
+    >
+
+        <div
+            class="
+                max-w-6xl
+                mx-auto
+                px-5
+                md:px-8
+                py-8
+                flex
+                flex-col
+                sm:flex-row
+                items-center
+                justify-between
+                gap-4
+            "
+        >
+
+            <p
+                class="
+                    text-xs
+                    text-gray-600
+                "
+            >
+                ConfigHub
+            </p>
+
+
+            <div
+                class="
+                    flex
+                    items-center
+                    gap-6
+                "
+            >
+
+                <a
+                    href="#"
+                    class="
+                        text-xs
+                        text-gray-600
+                        hover:text-gray-300
+                        transition
+                    "
+                >
+                    GitHub
+                </a>
+
+
+                <a
+                    href="#"
+                    class="
+                        text-xs
+                        text-gray-600
+                        hover:text-gray-300
+                        transition
+                    "
+                >
+                    Telegram
+                </a>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         LEAFLET JS
+    ====================================================== -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <!-- =====================================================
+         PROJECT JAVASCRIPT
+    ====================================================== -->
+    <script src="./countries.js"></script>
+    <script src="./script.js"></script>
+
+</body>
+
+</html>
