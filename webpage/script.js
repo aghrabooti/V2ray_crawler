@@ -1,4 +1,4 @@
-const SUBLINK_URL = "https://raw.githubusercontent.com/aghrabooti/V2ray_crawler/refs/heads/main/sublink.txt";
+const SUBLINK_URL = "https://raw.githubusercontent.com/aghrabooti/V2ray_crawler/refs/heads/main/crawler/sublink.txt";
 
 let configs = [];
 let map = null;
