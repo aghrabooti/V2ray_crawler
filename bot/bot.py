@@ -2,6 +2,7 @@ import os
 import json
 import time
 import threading
+import html
 from pathlib import Path
 
 import telebot
@@ -133,16 +134,11 @@ def load_configs():
 
             text = file.read()
 
-        configs = [
-
+        return [
             line.strip()
-
             for line in text.splitlines()
-
             if line.strip()
         ]
-
-        return configs
 
     except Exception as error:
 
@@ -152,6 +148,28 @@ def load_configs():
         )
 
         return []
+
+
+def load_sublink():
+
+    try:
+
+        with open(
+            SUBLINK_PATH,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            return file.read().strip()
+
+    except Exception as error:
+
+        print(
+            "Failed to load sublink.txt:",
+            error
+        )
+
+        return ""
 
 
 # ============================================================
@@ -164,7 +182,7 @@ def main_keyboard():
 
     subscription_button = types.InlineKeyboardButton(
         "🔗 Subscription Link",
-        url="https://qrco.de/bgy6Bk"
+        callback_data="subscription"
     )
 
     configs_button = types.InlineKeyboardButton(
@@ -222,6 +240,36 @@ def start_command(message):
 
 
 # ============================================================
+# SUBSCRIPTION LINK
+# ============================================================
+
+SUBSCRIPTION_URL = "https://qrco.de/bgy6Bk"
+
+
+@bot.callback_query_handler(
+    func=lambda call:
+        call.data == "subscription"
+)
+def subscription_callback(call):
+
+    try:
+
+        bot.answer_callback_query(
+            call.id
+        )
+
+        bot.send_message(
+            call.message.chat.id,
+            SUBSCRIPTION_URL
+        )
+
+    except Exception as error:
+
+        print(
+            "SUBSCRIPTION ERROR:",
+            error
+        )
+# ============================================================
 # CONFIG LIST
 # ============================================================
 
@@ -248,10 +296,19 @@ def configs_callback(call):
 
             return
 
-
         keyboard = types.InlineKeyboardMarkup()
 
+        # COPY ALL
+        copy_all_button = types.InlineKeyboardButton(
+            "📋 Copy All Configs",
+            callback_data="copy_all"
+        )
 
+        keyboard.row(
+            copy_all_button
+        )
+
+        # INDIVIDUAL CONFIGS
         for index, config in enumerate(configs):
 
             button = types.InlineKeyboardButton(
@@ -263,7 +320,6 @@ def configs_callback(call):
                 button
             )
 
-
         back_button = types.InlineKeyboardButton(
             "⬅️ Back",
             callback_data="main"
@@ -272,7 +328,6 @@ def configs_callback(call):
         keyboard.row(
             back_button
         )
-
 
         bot.send_message(
             call.message.chat.id,
@@ -284,6 +339,74 @@ def configs_callback(call):
 
         print(
             "CONFIG LIST ERROR:",
+            error
+        )
+
+
+# ============================================================
+# COPY ALL CONFIGS
+# ============================================================
+
+@bot.callback_query_handler(
+    func=lambda call:
+        call.data == "copy_all"
+)
+def copy_all_callback(call):
+
+    try:
+
+        bot.answer_callback_query(
+            call.id,
+            "Sending all configurations..."
+        )
+
+        sublink = load_sublink()
+
+        if not sublink:
+
+            bot.send_message(
+                call.message.chat.id,
+                "❌ No configurations are currently available."
+            )
+
+            return
+
+        # Telegram message limit is 4096 characters.
+        # If the whole file fits, send it as a code block.
+        if len(sublink) <= 4000:
+
+            escaped = html.escape(sublink)
+
+            message = (
+                "<pre>"
+                + escaped
+                + "</pre>"
+            )
+
+            bot.send_message(
+                call.message.chat.id,
+                message,
+                parse_mode="HTML"
+            )
+
+        else:
+
+            # If it is too large, send the actual file.
+            with open(
+                SUBLINK_PATH,
+                "rb"
+            ) as file:
+
+                bot.send_document(
+                    call.message.chat.id,
+                    file,
+                    caption="📋 All configurations"
+                )
+
+    except Exception as error:
+
+        print(
+            "COPY ALL ERROR:",
             error
         )
 
@@ -310,7 +433,6 @@ def config_callback(call):
 
         configs = load_configs()
 
-
         if (
             index < 0
             or index >= len(configs)
@@ -323,16 +445,13 @@ def config_callback(call):
 
             return
 
-
         config = configs[index]
-
 
         # EXACT CONFIG
         bot.send_message(
             call.message.chat.id,
             config
         )
-
 
     except Exception as error:
 
@@ -388,11 +507,9 @@ def broadcast_update():
 
         return
 
-
     print(
         f"Broadcasting update to {len(users)} users..."
     )
-
 
     message = (
         "🔄 Configurations updated!\n\n"
@@ -400,9 +517,7 @@ def broadcast_update():
         "Please update your Subscription."
     )
 
-
     invalid_users = []
-
 
     for chat_id in users:
 
@@ -418,7 +533,6 @@ def broadcast_update():
                 f"Broadcast sent to {chat_id}"
             )
 
-
         except Exception as error:
 
             print(
@@ -426,40 +540,31 @@ def broadcast_update():
                 error
             )
 
-
-            # User blocked bot / chat unavailable
-            error_text = str(error)
+            error_text = str(error).lower()
 
             if (
-                "bot was blocked" in error_text.lower()
-                or "chat not found" in error_text.lower()
-                or "user is deactivated" in error_text.lower()
+                "bot was blocked" in error_text
+                or "chat not found" in error_text
+                or "user is deactivated" in error_text
             ):
 
                 invalid_users.append(
                     chat_id
                 )
 
-
-        # Avoid hammering Telegram
         time.sleep(0.05)
-
 
     if invalid_users:
 
         remaining_users = [
-
             user
-
             for user in users
-
             if user not in invalid_users
         ]
 
         save_users(
             remaining_users
         )
-
 
     print(
         "Broadcast finished."
@@ -487,7 +592,6 @@ def initialize_sublink():
 
             last_sublink_content = file.read()
 
-
         print(
             "Initial sublink loaded."
         )
@@ -495,7 +599,6 @@ def initialize_sublink():
         print(
             f"Watching: {SUBLINK_PATH}"
         )
-
 
     except Exception as error:
 
@@ -521,13 +624,11 @@ def check_sublink():
 
                 current_content = file.read()
 
-
             if last_sublink_content is None:
 
                 last_sublink_content = (
                     current_content
                 )
-
 
             elif (
                 current_content
@@ -546,14 +647,11 @@ def check_sublink():
                     "================================"
                 )
 
-
                 last_sublink_content = (
                     current_content
                 )
 
-
                 broadcast_update()
-
 
         except Exception as error:
 
@@ -562,8 +660,111 @@ def check_sublink():
                 error
             )
 
-
         time.sleep(30)
+
+
+# ============================================================
+# INLINE MODE
+# ============================================================
+
+@bot.inline_handler(
+    func=lambda query: True
+)
+def inline_query(query):
+
+    try:
+
+        configs = load_configs()
+
+        results = []
+
+        search = query.query.strip().lower()
+
+        # ----------------------------------------------------
+        # ALL CONFIGS
+        # ----------------------------------------------------
+
+        if (
+            not search
+            or search in ["all", "*"]
+        ):
+
+            all_configs = "\n".join(configs)
+
+            if len(all_configs) <= 4096:
+
+                results.append(
+                    types.InlineQueryResultArticle(
+                        id="all_configs",
+                        title="📋 All Configs",
+                        description=(
+                            f"{len(configs)} configurations"
+                        ),
+                        input_message_content=
+                        types.InputTextMessageContent(
+                            all_configs
+                        ),
+                        reply_markup=None
+                    )
+                )
+
+        # ----------------------------------------------------
+        # INDIVIDUAL CONFIGS
+        # ----------------------------------------------------
+
+        for index, config in enumerate(configs):
+
+            # Search inside config
+            if search and search not in config.lower():
+                continue
+
+            preview = config
+
+            if len(preview) > 80:
+                preview = preview[:80] + "..."
+
+            results.append(
+                types.InlineQueryResultArticle(
+                    id=f"config_{index}",
+                    title=(
+                        f"⚡ Config {index + 1:03d}"
+                    ),
+                    description=preview,
+                    input_message_content=
+                    types.InputTextMessageContent(
+                        config
+                    )
+                )
+            )
+
+            # Telegram inline result limit
+            if len(results) >= 50:
+                break
+
+        bot.answer_inline_query(
+            query.id,
+            results,
+            cache_time=5,
+            is_personal=True
+        )
+
+    except Exception as error:
+
+        print(
+            "INLINE ERROR:",
+            error
+        )
+
+        try:
+
+            bot.answer_inline_query(
+                query.id,
+                [],
+                cache_time=1
+            )
+
+        except Exception:
+            pass
 
 
 # ============================================================
@@ -585,7 +786,6 @@ print(
 print(
     "================================"
 )
-
 
 initialize_sublink()
 
@@ -609,7 +809,6 @@ try:
         timeout=30,
         long_polling_timeout=30
     )
-
 
 except Exception as error:
 
