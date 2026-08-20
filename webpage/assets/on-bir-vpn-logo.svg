@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="220" viewBox="0 0 760 220" role="img" aria-labelledby="title desc">
+  <title id="title">on bir VPN</title>
+  <desc id="desc">The on bir VPN wordmark with a shield and stylized number eleven.</desc>
+
+  <defs>
+    <linearGradient id="brand" x1="38" y1="35" x2="177" y2="185" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A78BFA"/>
+      <stop offset="0.48" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="number" x1="63" y1="52" x2="151" y2="154" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#DDD6FE"/>
+      <stop offset="0.5" stop-color="#A78BFA"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="brandText" x1="475" y1="65" x2="685" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A78BFA"/>
+      <stop offset="0.58" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="76" y1="107" x2="139" y2="107" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8FAFC"/>
+      <stop offset="0.5" stop-color="#EDE9FE"/>
+      <stop offset="1" stop-color="#67E8F9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Brand icon -->
+  <g filter="url(#softGlow)">
+    <path d="M107 19 174 44v56c0 46-25 78-67 100-42-22-67-54-67-100V44l67-25Z" fill="url(#brand)" fill-opacity="0.11"/>
+    <path d="M107 19 174 44v56c0 46-25 78-67 100-42-22-67-54-67-100V44l67-25Z" fill="none" stroke="url(#brand)" stroke-width="9" stroke-linejoin="round"/>
+
+    <!-- The two pillars form 11 -->
+    <path d="m63 67 23-14h15v96H82V77l-19 10V67Z" fill="url(#brand)"/>
+    <path d="m113 67 23-14h15v96h-19V77l-19 10V67Z" fill="url(#brand)"/>
+
+    <!-- Secure connection through the 11 -->
+    <rect x="71" y="97" width="72" height="21" rx="10.5" fill="#0B0D14" stroke="#8B5CF6" stroke-width="3"/>
+    <rect x="80" y="103" width="54" height="9" rx="4.5" fill="url(#signal)"/>
+    <circle cx="80" cy="107.5" r="6" fill="#F8FAFC"/>
+    <circle cx="134" cy="107.5" r="6" fill="#67E8F9"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="218" y="137" fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="78" font-weight="750" letter-spacing="-3.4">on bir</text>
+  <text x="484" y="136" fill="url(#brandText)" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="58" font-weight="650" letter-spacing="7">VPN</text>
+</svg>
