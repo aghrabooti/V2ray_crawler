@@ -679,7 +679,6 @@ loadConfigs().catch(error => {
 
 });
 
-
         const copyAllButton =
             document.getElementById(
                 "copyAllConfigs"
