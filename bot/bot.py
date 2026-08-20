@@ -243,7 +243,7 @@ def start_command(message):
 # SUBSCRIPTION LINK
 # ============================================================
 
-SUBSCRIPTION_URL = "https://qrco.de/bgy6Bk"
+SUBSCRIPTION_URL = "https://www.canvaqr.com/RGQotQsltm"
 
 
 @bot.callback_query_handler(
