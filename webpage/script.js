@@ -679,8 +679,6 @@ loadConfigs().catch(error => {
 
 });
 
-const SUBLINK_URL = "../crawler/sublink.txt";
-
 
         const copyAllButton =
             document.getElementById(
