@@ -1,0 +1,10 @@
+name = "confighub-bot"
+main = "bot/bot.ts"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "confighub_users"
+database_name = "confighub_users"
+database_id = "03d5901b-2302-4e9e-8499-960eb1ca985d"
+[triggers]
+crons = ["*/5 * * * *"]
