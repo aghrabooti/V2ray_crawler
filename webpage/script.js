@@ -1,4 +1,19 @@
-const SUBLINK_URL = "https://raw.githubusercontent.com/aghrabooti/V2ray_crawler/refs/heads/main/crawler/sublink.txt";
+// ============================================================
+// CONFIG
+// ============================================================
+
+const SUBLINK_URL =
+    "https://raw.githubusercontent.com/aghrabooti/V2ray_crawler/refs/heads/main/crawler/sublink.txt";
+
+const SUBSCRIPTION_LINK =
+    "https://www.canvaqr.com/RGQotQsltm";
+
+const TELEGRAM_URL =
+    "https://t.me/confighubrobot";
+
+const GITHUB_URL =
+    "https://github.com/aghrabooti/V2ray_crawler";
+
 
 let configs = [];
 let map = null;
@@ -11,17 +26,19 @@ let markers = [];
 
 function getCountryCode(config) {
 
-    const match = config.match(
-        /#(.*)$/
-    );
+    const match = config.match(/#(.*)$/);
 
     if (!match) {
         return null;
     }
 
-    let name = decodeURIComponent(
-        match[1]
-    );
+    let name = match[1];
+
+    try {
+        name = decodeURIComponent(name);
+    } catch {
+        // Ignore malformed URI
+    }
 
     const flagMatch = name.match(
         /([\u{1F1E6}-\u{1F1FF}]{2})/u
@@ -89,13 +106,18 @@ function getConfigType(config) {
 async function loadConfigs() {
 
     const response = await fetch(
-        SUBLINK_URL + "?t=" + Date.now()
+        SUBLINK_URL + "?t=" + Date.now(),
+        {
+            cache: "no-store"
+        }
     );
 
     if (!response.ok) {
+
         throw new Error(
             `Failed to load sublink: ${response.status}`
         );
+
     }
 
     const text = await response.text();
@@ -104,6 +126,7 @@ async function loadConfigs() {
         .split(/\r?\n/)
         .map(line => line.trim())
         .filter(line => line.length > 0);
+
 
     configs = lines
         .map((line, index) => {
@@ -135,6 +158,7 @@ async function loadConfigs() {
             config.country !== null
         );
 
+
     populateCountrySelect();
 
     renderConfigs();
@@ -155,12 +179,18 @@ function populateCountrySelect() {
             "countrySelect"
         );
 
+    if (!select) {
+        return;
+    }
+
     select.innerHTML = "";
+
 
     const allOption =
         document.createElement("option");
 
     allOption.value = "ALL";
+
     allOption.textContent =
         "All Countries";
 
@@ -194,15 +224,24 @@ function populateCountrySelect() {
         const country =
             countries[code];
 
+        if (!country) {
+            return;
+        }
+
+
         const option =
             document.createElement(
                 "option"
             );
 
-        option.value = code;
+
+        option.value =
+            code;
+
 
         option.textContent =
             `${country.flag} ${country.name}`;
+
 
         select.appendChild(
             option
@@ -211,10 +250,8 @@ function populateCountrySelect() {
     });
 
 
-    select.addEventListener(
-        "change",
-        renderConfigs
-    );
+    select.onchange =
+        renderConfigs;
 
 }
 
@@ -230,17 +267,30 @@ function renderConfigs() {
             "configList"
         );
 
-    const selectedCountry =
+    if (!list) {
+        return;
+    }
+
+
+    const select =
         document.getElementById(
             "countrySelect"
-        ).value;
+        );
+
+
+    const selectedCountry =
+        select
+            ? select.value
+            : "ALL";
 
 
     let filtered =
         configs;
 
 
-    if (selectedCountry !== "ALL") {
+    if (
+        selectedCountry !== "ALL"
+    ) {
 
         filtered =
             configs.filter(
@@ -270,7 +320,12 @@ function renderConfigs() {
                 "
             >
 
-                <p class="text-gray-500 text-sm">
+                <p
+                    class="
+                        text-gray-500
+                        text-sm
+                    "
+                >
                     No configurations found.
                 </p>
 
@@ -283,206 +338,805 @@ function renderConfigs() {
     }
 
 
-    filtered.forEach(
-        (config, index) => {
+    filtered.forEach(config => {
 
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className = `
-                config-card
-                bg-[#101217]
-                border
-                border-[#1d2028]
-                rounded-2xl
-                p-5
-                md:p-6
-            `;
+        const card =
+            document.createElement(
+                "div"
+            );
 
 
-            card.innerHTML = `
+        card.className = `
+            config-card
+            bg-[#101217]
+            border
+            border-[#1d2028]
+            rounded-2xl
+            p-5
+            md:p-6
+        `;
+
+
+        card.innerHTML = `
+
+            <div
+                class="
+                    flex
+                    flex-col
+                    sm:flex-row
+                    sm:items-center
+                    justify-between
+                    gap-5
+                "
+            >
 
                 <div
                     class="
                         flex
-                        flex-col
-                        sm:flex-row
-                        sm:items-center
-                        justify-between
-                        gap-5
+                        items-center
+                        gap-4
                     "
                 >
 
                     <div
                         class="
+                            w-14
+                            h-14
+                            rounded-xl
+                            bg-white/[0.04]
+                            border
+                            border-white/[0.06]
                             flex
                             items-center
-                            gap-4
+                            justify-center
+                            overflow-hidden
                         "
                     >
 
-                        <div
-                            class="
-                                w-14
-                                h-14
-                                rounded-xl
-                                bg-white/[0.04]
-                                border
-                                border-white/[0.06]
-                                flex
-                                items-center
-                                justify-center
-                                overflow-hidden
-                            "
+                        <img
+                            src="https://flagcdn.com/w80/${config.countryCode.toLowerCase()}.png"
+                            alt="${config.country.name}"
+                            class="w-9 h-auto object-contain"
                         >
-                            <img
-                                src="https://flagcdn.com/w80/${config.countryCode.toLowerCase()}.png"
-                                alt="${config.country.name}"
-                                class="w-9 h-auto object-contain"
-                            >
-                        </div>
-
-
-                        <div>
-
-                            <div
-                                class="
-                                    flex
-                                    items-center
-                                    gap-2
-                                "
-                            >
-
-                                <h3
-                                    class="
-                                        font-semibold
-                                        text-lg
-                                    "
-                                >
-                                    ${config.country.name}
-                                </h3>
-
-
-                                <span
-                                    class="
-                                        text-[10px]
-                                        px-2
-                                        py-1
-                                        rounded-md
-                                        bg-violet-500/10
-                                        text-violet-300
-                                        border
-                                        border-violet-500/10
-                                    "
-                                >
-                                    ${config.type}
-                                </span>
-
-                            </div>
-
-
-                            <p
-                                class="
-                                    text-xs
-                                    text-gray-600
-                                    mt-1
-                                "
-                            >
-                                Config #${String(
-                                    config.id
-                                ).padStart(3, "0")}
-                            </p>
-
-                        </div>
 
                     </div>
 
 
-                    <button
-                        class="
-                            copy-btn
-                            w-full
-                            sm:w-auto
-                            px-6
-                            py-3
-                            rounded-xl
-                            bg-violet-600
-                            hover:bg-violet-500
-                            text-sm
-                            font-semibold
-                            shadow-[0_8px_30px_rgba(124,58,237,0.18)]
-                        "
-                    >
-                        Copy
-                    </button>
+                    <div>
+
+                        <div
+                            class="
+                                flex
+                                items-center
+                                gap-2
+                            "
+                        >
+
+                            <h3
+                                class="
+                                    font-semibold
+                                    text-lg
+                                "
+                            >
+                                ${config.country.name}
+                            </h3>
+
+
+                            <span
+                                class="
+                                    text-[10px]
+                                    px-2
+                                    py-1
+                                    rounded-md
+                                    bg-violet-500/10
+                                    text-violet-300
+                                    border
+                                    border-violet-500/10
+                                "
+                            >
+                                ${config.type}
+                            </span>
+
+                        </div>
+
+
+                        <p
+                            class="
+                                text-xs
+                                text-gray-600
+                                mt-1
+                            "
+                        >
+                            Config #${String(
+                                config.id
+                            ).padStart(3, "0")}
+                        </p>
+
+                    </div>
 
                 </div>
 
-            `;
+
+                <button
+                    class="
+                        copy-btn
+                        w-full
+                        sm:w-auto
+                        px-6
+                        py-3
+                        rounded-xl
+                        bg-violet-600
+                        hover:bg-violet-500
+                        text-sm
+                        font-semibold
+                        shadow-[0_8px_30px_rgba(124,58,237,0.18)]
+                    "
+                >
+                    Copy
+                </button>
+
+            </div>
+
+        `;
 
 
-            const button =
-                card.querySelector(
-                    "button"
-                );
+        const button =
+            card.querySelector(
+                "button"
+            );
 
 
-            button.addEventListener(
-                "click",
-                async () => {
+        button.addEventListener(
+            "click",
+            async () => {
 
-                    try {
+                try {
 
-                        await navigator.clipboard.writeText(
-                            config.raw
-                        );
+                    await copyText(
+                        config.raw
+                    );
 
-                        const oldText =
-                            button.textContent;
+
+                    const oldText =
+                        button.textContent;
+
+
+                    button.textContent =
+                        "Copied!";
+
+
+                    button.classList.remove(
+                        "bg-violet-600"
+                    );
+
+
+                    button.classList.add(
+                        "bg-green-600"
+                    );
+
+
+                    setTimeout(() => {
 
                         button.textContent =
-                            "Copied!";
+                            oldText;
+
 
                         button.classList.remove(
-                            "bg-violet-600"
-                        );
-
-                        button.classList.add(
                             "bg-green-600"
                         );
 
 
-                        setTimeout(() => {
-
-                            button.textContent =
-                                oldText;
-
-                            button.classList.remove(
-                                "bg-green-600"
-                            );
-
-                            button.classList.add(
-                                "bg-violet-600"
-                            );
-
-                        }, 1200);
-
-                    } catch (error) {
-
-                        console.error(
-                            "Copy failed:",
-                            error
+                        button.classList.add(
+                            "bg-violet-600"
                         );
 
-                    }
+                    }, 1200);
 
+
+                } catch (error) {
+
+                    console.error(
+                        "Copy failed:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+
+        list.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+// ============================================================
+// COPY HELPER
+// ============================================================
+
+async function copyText(text) {
+
+    if (
+        navigator.clipboard &&
+        window.isSecureContext
+    ) {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+        return;
+
+    }
+
+
+    const textarea =
+        document.createElement(
+            "textarea"
+        );
+
+
+    textarea.value =
+        text;
+
+
+    textarea.style.position =
+        "fixed";
+
+    textarea.style.left =
+        "-9999px";
+
+
+    document.body.appendChild(
+        textarea
+    );
+
+
+    textarea.focus();
+
+    textarea.select();
+
+
+    const successful =
+        document.execCommand(
+            "copy"
+        );
+
+
+    textarea.remove();
+
+
+    if (!successful) {
+
+        throw new Error(
+            "Clipboard copy failed"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// COPY ALL CONFIGS
+// ============================================================
+
+async function copyAllConfigs() {
+
+    const button =
+        document.getElementById(
+            "copyAllConfigs"
+        );
+
+    const textElement =
+        document.getElementById(
+            "copyAllText"
+        );
+
+
+    const originalText =
+        textElement
+            ? textElement.textContent
+            : "Copy All Configs";
+
+
+    try {
+
+        if (textElement) {
+            textElement.textContent =
+                "Loading...";
+        }
+
+
+        const response =
+            await fetch(
+                SUBLINK_URL + "?t=" + Date.now(),
+                {
+                    cache: "no-store"
                 }
             );
 
 
-            list.appendChild(card);
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const text =
+            await response.text();
+
+
+        if (!text.trim()) {
+
+            throw new Error(
+                "No configurations found."
+            );
+
+        }
+
+
+        await copyText(
+            text
+        );
+
+
+        if (textElement) {
+
+            textElement.textContent =
+                "✓ Copied!";
+
+        }
+
+
+        setTimeout(() => {
+
+            if (textElement) {
+
+                textElement.textContent =
+                    originalText;
+
+            }
+
+        }, 2000);
+
+
+    } catch (error) {
+
+        console.error(
+            "Copy all failed:",
+            error
+        );
+
+
+        if (textElement) {
+
+            textElement.textContent =
+                "Copy failed";
+
+
+            setTimeout(() => {
+
+                textElement.textContent =
+                    originalText;
+
+            }, 2000);
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// SUBSCRIPTION MODAL
+// ============================================================
+
+function showSubscriptionModal() {
+
+    // Remove existing modal
+
+    const oldModal =
+        document.getElementById(
+            "subscriptionModal"
+        );
+
+
+    if (oldModal) {
+        oldModal.remove();
+    }
+
+
+    // --------------------------------------------------------
+    // MODAL
+    // --------------------------------------------------------
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "subscriptionModal";
+
+
+    modal.className = `
+        fixed
+        inset-0
+        z-[9999]
+        flex
+        items-center
+        justify-center
+        p-5
+        bg-black/80
+        backdrop-blur-md
+    `;
+
+
+    modal.innerHTML = `
+
+        <div
+            class="
+                relative
+                w-full
+                max-w-md
+                rounded-3xl
+                border
+                border-white/10
+                bg-[#101217]
+                p-6
+                shadow-2xl
+            "
+        >
+
+            <!-- CLOSE -->
+
+            <button
+                id="closeSubscriptionModal"
+                class="
+                    absolute
+                    right-4
+                    top-4
+                    w-9
+                    h-9
+                    rounded-full
+                    bg-white/[0.05]
+                    hover:bg-white/[0.1]
+                    text-gray-400
+                    hover:text-white
+                    transition
+                    text-xl
+                "
+            >
+                ×
+            </button>
+
+
+            <!-- TITLE -->
+
+            <div
+                class="
+                    text-center
+                    mb-6
+                "
+            >
+
+                <div
+                    class="
+                        text-2xl
+                        font-bold
+                    "
+                >
+                    🔗 Subscription
+                </div>
+
+
+                <p
+                    class="
+                        text-sm
+                        text-gray-500
+                        mt-2
+                    "
+                >
+                    Scan the QR code or copy the link
+                </p>
+
+            </div>
+
+
+            <!-- QR -->
+
+            <div
+                class="
+                    flex
+                    justify-center
+                    mb-6
+                "
+            >
+
+                <a
+                    id="subscriptionQRDownload"
+                    href="https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(SUBSCRIPTION_LINK)}"
+                    download="on-bir-vpn-subscription-qr.png"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="
+                        block
+                        rounded-2xl
+                        overflow-hidden
+                        bg-white
+                        p-3
+                        cursor-pointer
+                        hover:scale-[1.02]
+                        transition
+                    "
+                    title="Click to download QR"
+                >
+
+                    <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(SUBSCRIPTION_LINK)}"
+                        alt="Subscription QR Code"
+                        class="
+                            w-56
+                            h-56
+                            object-contain
+                        "
+                    >
+
+                </a>
+
+            </div>
+
+
+            <p
+                class="
+                    text-center
+                    text-xs
+                    text-gray-500
+                    mb-5
+                "
+            >
+                Click the QR code to download it
+            </p>
+
+
+            <!-- LINK -->
+
+            <div
+                class="
+                    flex
+                    gap-2
+                "
+            >
+
+                <input
+                    id="subscriptionLinkInput"
+                    type="text"
+                    readonly
+                    value="${SUBSCRIPTION_LINK}"
+                    class="
+                        min-w-0
+                        flex-1
+                        bg-[#08090d]
+                        border
+                        border-white/[0.08]
+                        rounded-xl
+                        px-4
+                        py-3
+                        text-xs
+                        text-gray-300
+                        outline-none
+                    "
+                >
+
+
+                <button
+                    id="copySubscriptionLink"
+                    class="
+                        shrink-0
+                        px-4
+                        rounded-xl
+                        bg-violet-600
+                        hover:bg-violet-500
+                        text-sm
+                        font-semibold
+                        transition
+                    "
+                >
+                    Copy
+                </button>
+
+            </div>
+
+
+            <!-- DOWNLOAD -->
+
+            <a
+                href="https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(SUBSCRIPTION_LINK)}"
+                download="on-bir-vpn-subscription-qr.png"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="
+                    block
+                    mt-3
+                    w-full
+                    text-center
+                    px-4
+                    py-3
+                    rounded-xl
+                    bg-white/[0.05]
+                    hover:bg-white/[0.09]
+                    border
+                    border-white/[0.08]
+                    text-sm
+                    font-semibold
+                    transition
+                "
+            >
+                ⬇️ Download QR Code
+            </a>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    // --------------------------------------------------------
+    // CLOSE
+    // --------------------------------------------------------
+
+    const closeButton =
+        document.getElementById(
+            "closeSubscriptionModal"
+        );
+
+
+    closeButton.onclick = () => {
+
+        modal.remove();
+
+    };
+
+
+    // Click outside modal
+
+    modal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                modal
+            ) {
+
+                modal.remove();
+
+            }
+
+        }
+    );
+
+
+    // ESC
+
+    const escapeHandler =
+        event => {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                modal.remove();
+
+                document.removeEventListener(
+                    "keydown",
+                    escapeHandler
+                );
+
+            }
+
+        };
+
+
+    document.addEventListener(
+        "keydown",
+        escapeHandler
+    );
+
+
+    // --------------------------------------------------------
+    // COPY SUBSCRIPTION LINK
+    // --------------------------------------------------------
+
+    const copyButton =
+        document.getElementById(
+            "copySubscriptionLink"
+        );
+
+
+    copyButton.onclick =
+        async () => {
+
+            try {
+
+                await copyText(
+                    SUBSCRIPTION_LINK
+                );
+
+
+                copyButton.textContent =
+                    "✓ Copied!";
+
+
+                copyButton.classList.remove(
+                    "bg-violet-600"
+                );
+
+
+                copyButton.classList.add(
+                    "bg-green-600"
+                );
+
+
+                setTimeout(() => {
+
+                    copyButton.textContent =
+                        "Copy";
+
+
+                    copyButton.classList.remove(
+                        "bg-green-600"
+                    );
+
+
+                    copyButton.classList.add(
+                        "bg-violet-600"
+                    );
+
+                }, 1500);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Subscription copy failed:",
+                    error
+                );
+
+            }
+
+        };
+
+
+    // Select link when clicking input
+
+    const input =
+        document.getElementById(
+            "subscriptionLinkInput"
+        );
+
+
+    input.addEventListener(
+        "click",
+        () => {
+
+            input.select();
 
         }
     );
@@ -535,9 +1189,11 @@ function initMap() {
         const code =
             config.countryCode;
 
+
         if (!code) {
             return;
         }
+
 
         countryCounts[code] =
             (countryCounts[code] || 0) + 1;
@@ -552,6 +1208,7 @@ function initMap() {
 
             const country =
                 countries[code];
+
 
             if (!country) {
                 return;
@@ -578,11 +1235,14 @@ function initMap() {
                         color:
                             "#67e8f9",
 
-                        weight: 2,
+                        weight:
+                            2,
 
-                        opacity: 1,
+                        opacity:
+                            1,
 
-                        fillOpacity: 0.85
+                        fillOpacity:
+                            0.85
 
                     }
                 );
@@ -602,6 +1262,7 @@ function initMap() {
                         ${country.flag}
                         ${country.name}
                     </div>
+
 
                     <div
                         style="
@@ -632,226 +1293,89 @@ function initMap() {
 // START
 // ============================================================
 
-loadConfigs().catch(error => {
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-    console.error(
-        "CONFIG LOAD ERROR:",
-        error
-    );
+        // Bind existing HTML buttons
+        const copyAllBtn =
+            document.getElementById("copyAllConfigs");
 
-
-    const list =
-        document.getElementById(
-            "configList"
-        );
-
-
-    list.innerHTML = `
-
-        <div
-            class="
-                rounded-2xl
-                border
-                border-red-500/10
-                bg-[#101217]
-                p-8
-                text-center
-            "
-        >
-
-            <p class="text-red-400 text-sm">
-                Failed to load configurations.
-            </p>
-
-            <p
-                class="
-                    text-gray-600
-                    text-xs
-                    mt-2
-                "
-            >
-                ${error.message}
-            </p>
-
-        </div>
-
-    `;
-
-});
-
-        const copyAllButton =
-            document.getElementById(
-                "copyAllConfigs"
+        if (copyAllBtn) {
+            copyAllBtn.addEventListener(
+                "click",
+                copyAllConfigs
             );
+        }
 
+        const subscriptionBtn =
+            document.getElementById("subscriptionButton");
 
-        const copyAllText =
-            document.getElementById(
-                "copyAllText"
+        if (subscriptionBtn) {
+            subscriptionBtn.addEventListener(
+                "click",
+                showSubscriptionModal
             );
+        }
+
+        // Load configs
+        loadConfigs()
+            .catch(error => {
+
+                console.error(
+                    "CONFIG LOAD ERROR:",
+                    error
+                );
 
 
-        copyAllButton.addEventListener(
-            "click",
-            async () => {
-
-                const originalText =
-                    "Copy All Configs";
-
-
-                try {
-
-                    copyAllText.textContent =
-                        "Loading...";
-
-
-                    const response =
-                        await fetch(
-                            SUBLINK_URL,
-                            {
-                                cache: "no-store"
-                            }
-                        );
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            `HTTP ${response.status}`
-                        );
-
-                    }
-
-
-                    const configs =
-                        await response.text();
-
-
-                    if (!configs.trim()) {
-
-                        throw new Error(
-                            "No configurations found."
-                        );
-
-                    }
-
-
-                    await navigator.clipboard.writeText(
-                        configs
+                const list =
+                    document.getElementById(
+                        "configList"
                     );
 
 
-                    copyAllText.textContent =
-                        "✓ Copied!";
+                if (list) {
+
+                    list.innerHTML = `
+
+                        <div
+                            class="
+                                rounded-2xl
+                                border
+                                border-red-500/10
+                                bg-[#101217]
+                                p-8
+                                text-center
+                            "
+                        >
+
+                            <p
+                                class="
+                                    text-red-400
+                                    text-sm
+                                "
+                            >
+                                Failed to load configurations.
+                            </p>
 
 
-                    setTimeout(
-                        () => {
+                            <p
+                                class="
+                                    text-gray-600
+                                    text-xs
+                                    mt-2
+                                "
+                            >
+                                ${error.message}
+                            </p>
 
-                            copyAllText.textContent =
-                                originalText;
+                        </div>
 
-                        },
-                        2000
-                    );
-
-
-                } catch (error) {
-
-                    console.error(
-                        "Failed to copy configs:",
-                        error
-                    );
-
-
-                    /*
-                     * Fallback for browsers where
-                     * Clipboard API is unavailable.
-                     */
-
-                    try {
-
-                        const textarea =
-                            document.createElement(
-                                "textarea"
-                            );
-
-
-                        textarea.value =
-                            await fetch(
-                                SUBLINK_URL,
-                                {
-                                    cache: "no-store"
-                                }
-                            ).then(
-                                response =>
-                                    response.text()
-                            );
-
-
-                        textarea.style.position =
-                            "fixed";
-
-                        textarea.style.opacity =
-                            "0";
-
-
-                        document.body.appendChild(
-                            textarea
-                        );
-
-
-                        textarea.select();
-
-
-                        document.execCommand(
-                            "copy"
-                        );
-
-
-                        textarea.remove();
-
-
-                        copyAllText.textContent =
-                            "✓ Copied!";
-
-
-                        setTimeout(
-                            () => {
-
-                                copyAllText.textContent =
-                                    originalText;
-
-                            },
-                            2000
-                        );
-
-
-                    } catch (fallbackError) {
-
-                        console.error(
-                            "Copy failed:",
-                            fallbackError
-                        );
-
-
-                        copyAllText.textContent =
-                            "Copy failed";
-
-
-                        setTimeout(
-                            () => {
-
-                                copyAllText.textContent =
-                                    originalText;
-
-                            },
-                            2000
-                        );
-
-                    }
+                    `;
 
                 }
 
-            }
-        );
+            });
+
+    }
+);
