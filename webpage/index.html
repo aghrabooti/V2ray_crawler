@@ -323,10 +323,12 @@
 
 
                     <a
-                        href="#"
+                        href="https://t.me/confighubrobot"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         class="
                             text-sm
-                            text-gray-500
+                            text-gray-300
                             hover:text-white
                             transition
                         "
@@ -538,65 +540,200 @@
             </div>
 
 
-            <!-- COUNTRY SELECT -->
+            <!-- =================================================
+                 ACTION BUTTONS
+            ================================================== -->
 
             <div
                 class="
-                    relative
+                    flex
+                    flex-wrap
+                    items-center
+                    gap-3
                 "
             >
 
-                <select
-                    id="countrySelect"
+
+                <!-- COPY ALL -->
+
+                <button
+                    id="copyAllConfigs"
+                    type="button"
                     class="
-                        appearance-none
-                        bg-[#101217]
-                        border
-                        border-white/[0.08]
-                        rounded-xl
-                        pl-4
-                        pr-11
+                        inline-flex
+                        items-center
+                        gap-2
+                        px-4
                         py-3
+                        rounded-xl
+                        bg-violet-500/[0.08]
+                        border
+                        border-violet-500/20
+                        text-violet-300
                         text-sm
-                        text-gray-300
-                        outline-none
-                        focus:border-violet-500/50
+                        hover:bg-violet-500/[0.14]
+                        hover:border-violet-500/30
                         transition
                         cursor-pointer
                     "
                 >
 
-                    <option value="ALL">
-                        All Countries
-                    </option>
+                    <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                    >
 
-                </select>
+                        <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                        />
+
+                        <path
+                            d="
+                                M5 15H4
+                                a2 2 0 0 1-2-2V4
+                                a2 2 0 0 1 2-2h9
+                                a2 2 0 0 1 2 2v1
+                            "
+                        />
+
+                    </svg>
+
+                    <span id="copyAllText">
+                        Copy All Configs
+                    </span>
+
+                </button>
 
 
-                <svg
+
+                <!-- SUBSCRIPTION -->
+
+                <a
+                    href="https://www.canvaqr.com/RGQotQsltm"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="
-                        absolute
-                        right-4
-                        top-1/2
-                        -translate-y-1/2
-                        w-4
-                        h-4
-                        text-gray-500
-                        pointer-events-none
+                        inline-flex
+                        items-center
+                        gap-2
+                        px-4
+                        py-3
+                        rounded-xl
+                        bg-white/[0.05]
+                        border
+                        border-white/[0.08]
+                        text-gray-300
+                        text-sm
+                        hover:bg-white/[0.09]
+                        hover:text-white
+                        transition
                     "
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
                 >
 
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m6 9 6 6 6-6"
-                    />
+                    🔗 Subscription
 
-                </svg>
+                </a>
+
+
+
+                <!-- TELEGRAM -->
+
+                <a
+                    href="https://t.me/confighubrobot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="
+                        inline-flex
+                        items-center
+                        gap-2
+                        px-4
+                        py-3
+                        rounded-xl
+                        bg-white/[0.05]
+                        border
+                        border-white/[0.08]
+                        text-gray-300
+                        text-sm
+                        hover:bg-white/[0.09]
+                        hover:text-white
+                        transition
+                    "
+                >
+
+                    ✈️ Telegram
+
+                </a>
+
+
+
+                <!-- COUNTRY SELECT -->
+
+                <div
+                    class="
+                        relative
+                    "
+                >
+
+                    <select
+                        id="countrySelect"
+                        class="
+                            appearance-none
+                            bg-[#101217]
+                            border
+                            border-white/[0.08]
+                            rounded-xl
+                            pl-4
+                            pr-11
+                            py-3
+                            text-sm
+                            text-gray-300
+                            outline-none
+                            focus:border-violet-500/50
+                            transition
+                            cursor-pointer
+                        "
+                    >
+
+                        <option value="ALL">
+                            All Countries
+                        </option>
+
+                    </select>
+
+
+                    <svg
+                        class="
+                            absolute
+                            right-4
+                            top-1/2
+                            -translate-y-1/2
+                            w-4
+                            h-4
+                            text-gray-500
+                            pointer-events-none
+                        "
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                    >
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="m6 9 6 6 6-6"
+                        />
+
+                    </svg>
+
+                </div>
 
             </div>
 
@@ -606,8 +743,6 @@
 
         <!-- =================================================
              CONFIG LIST
-
-             JavaScript این قسمت را پر می‌کند.
         ================================================== -->
 
         <div
@@ -878,7 +1013,9 @@
 
 
                 <a
-                    href="#"
+                    href="https://t.me/confighubrobot"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="
                         text-xs
                         text-gray-600
@@ -906,11 +1043,210 @@
     ></script>
 
 
+
     <!-- =====================================================
          PROJECT JAVASCRIPT
     ====================================================== -->
+
     <script src="./countries.js"></script>
     <script src="./script.js"></script>
+
+
+
+    <!-- =====================================================
+         COPY ALL CONFIGS
+    ====================================================== -->
+
+    <script>
+
+        /*
+         * Change this URL if sublink.txt is hosted
+         * somewhere else.
+         */
+
+        const SUBLINK_URL =
+            "../crawler/sublink.txt";
+
+
+        const copyAllButton =
+            document.getElementById(
+                "copyAllConfigs"
+            );
+
+
+        const copyAllText =
+            document.getElementById(
+                "copyAllText"
+            );
+
+
+        copyAllButton.addEventListener(
+            "click",
+            async () => {
+
+                const originalText =
+                    "Copy All Configs";
+
+
+                try {
+
+                    copyAllText.textContent =
+                        "Loading...";
+
+
+                    const response =
+                        await fetch(
+                            SUBLINK_URL,
+                            {
+                                cache: "no-store"
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            `HTTP ${response.status}`
+                        );
+
+                    }
+
+
+                    const configs =
+                        await response.text();
+
+
+                    if (!configs.trim()) {
+
+                        throw new Error(
+                            "No configurations found."
+                        );
+
+                    }
+
+
+                    await navigator.clipboard.writeText(
+                        configs
+                    );
+
+
+                    copyAllText.textContent =
+                        "✓ Copied!";
+
+
+                    setTimeout(
+                        () => {
+
+                            copyAllText.textContent =
+                                originalText;
+
+                        },
+                        2000
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to copy configs:",
+                        error
+                    );
+
+
+                    /*
+                     * Fallback for browsers where
+                     * Clipboard API is unavailable.
+                     */
+
+                    try {
+
+                        const textarea =
+                            document.createElement(
+                                "textarea"
+                            );
+
+
+                        textarea.value =
+                            await fetch(
+                                SUBLINK_URL,
+                                {
+                                    cache: "no-store"
+                                }
+                            ).then(
+                                response =>
+                                    response.text()
+                            );
+
+
+                        textarea.style.position =
+                            "fixed";
+
+                        textarea.style.opacity =
+                            "0";
+
+
+                        document.body.appendChild(
+                            textarea
+                        );
+
+
+                        textarea.select();
+
+
+                        document.execCommand(
+                            "copy"
+                        );
+
+
+                        textarea.remove();
+
+
+                        copyAllText.textContent =
+                            "✓ Copied!";
+
+
+                        setTimeout(
+                            () => {
+
+                                copyAllText.textContent =
+                                    originalText;
+
+                            },
+                            2000
+                        );
+
+
+                    } catch (fallbackError) {
+
+                        console.error(
+                            "Copy failed:",
+                            fallbackError
+                        );
+
+
+                        copyAllText.textContent =
+                            "Copy failed";
+
+
+                        setTimeout(
+                            () => {
+
+                                copyAllText.textContent =
+                                    originalText;
+
+                            },
+                            2000
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+    </script>
+
 
 </body>
 
