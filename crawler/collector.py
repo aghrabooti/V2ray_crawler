@@ -14,8 +14,18 @@ CHANNELS = ["DailyV2Proxy"]
 
 MAX_CONFIGS = 100
 
-OUTPUT_FILE = "sub.txt"
-STATE_FILE = "telegram_state.json"
+# Files will be saved next to this Python script
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+OUTPUT_FILE = os.path.join(
+    SCRIPT_DIR,
+    "sub.txt"
+)
+
+STATE_FILE = os.path.join(
+    SCRIPT_DIR,
+    "telegram_state.json"
+)
 
 BASE_URL = "https://t.me/s/"
 
@@ -36,22 +46,18 @@ REQUEST_TIMEOUT = 15
 # ============================================================
 
 def load_state():
-
     if not os.path.exists(STATE_FILE):
         return {}
 
     try:
-
         with open(
             STATE_FILE,
             "r",
             encoding="utf-8"
         ) as f:
-
             return json.load(f)
 
     except Exception:
-
         return {}
 
 
@@ -60,13 +66,11 @@ def load_state():
 # ============================================================
 
 def save_state(state):
-
     with open(
         STATE_FILE,
         "w",
         encoding="utf-8"
     ) as f:
-
         json.dump(
             state,
             f,
@@ -80,14 +84,12 @@ def save_state(state):
 # ============================================================
 
 def get_message_id(message):
-
     data_post = message.get("data-post")
 
     if not data_post:
         return None
 
     try:
-
         # Example:
         # DailyV2Proxy/12345
 
@@ -96,7 +98,6 @@ def get_message_id(message):
         )
 
     except Exception:
-
         return None
 
 
@@ -105,7 +106,6 @@ def get_message_id(message):
 # ============================================================
 
 def extract_configs(text):
-
     pattern = (
         r"vmess://[^\s<]+"
         r"|vless://[^\s<]+"
@@ -124,7 +124,6 @@ def extract_configs(text):
 # ============================================================
 
 def get_page(url):
-
     response = requests.get(
         url,
         headers=HEADERS,
@@ -145,12 +144,10 @@ def get_page(url):
 
 def scrape_channel(channel, state):
 
-    channel = channel.replace(
-        "@",
-        ""
-    )
+    channel = channel.replace("@", "")
 
-    last_message_id = int(
+    # Message ID saved from previous run
+    last_saved_message_id = int(
         state.get(
             channel,
             0
@@ -160,22 +157,37 @@ def scrape_channel(channel, state):
     print()
     print("=" * 60)
     print(f"CHANNEL: {channel}")
-    print(f"Last processed message: {last_message_id}")
+    print(
+        f"Saved message ID: "
+        f"{last_saved_message_id}"
+    )
     print("=" * 60)
 
     all_configs = []
 
-    newest_message_id = last_message_id
-
-    # --------------------------------------------------------
-    # First page
-    # --------------------------------------------------------
+    # This will contain the newest message ID
+    # of the channel that we see during this run.
+    newest_message_id = None
 
     url = BASE_URL + channel
 
     page_number = 0
 
+    reached_saved_message = False
+
+    # ========================================================
+    # PAGINATION
+    # ========================================================
+
     while True:
+
+        # If we already have enough configs,
+        # there is no reason to continue.
+        if len(all_configs) >= MAX_CONFIGS:
+            print(
+                f"Reached MAX_CONFIGS ({MAX_CONFIGS})."
+            )
+            break
 
         page_number += 1
 
@@ -184,15 +196,12 @@ def scrape_channel(channel, state):
         )
 
         try:
-
             soup = get_page(url)
 
         except Exception as e:
-
             print(
                 f"ERROR loading page: {e}"
             )
-
             break
 
         messages = soup.find_all(
@@ -201,16 +210,16 @@ def scrape_channel(channel, state):
         )
 
         if not messages:
-
             print(
                 "No messages found."
             )
-
             break
 
         page_message_ids = []
 
-        reached_old_message = False
+        # ====================================================
+        # PROCESS MESSAGES
+        # ====================================================
 
         for message in messages:
 
@@ -225,23 +234,36 @@ def scrape_channel(channel, state):
                 message_id
             )
 
-            # Newest message seen
-            if message_id > newest_message_id:
-
-                newest_message_id = message_id
-
             # ------------------------------------------------
-            # Stop processing old messages
+            # Get newest message ID
             # ------------------------------------------------
 
             if (
-                last_message_id > 0
-                and message_id <= last_message_id
+                newest_message_id is None
+                or message_id > newest_message_id
             ):
+                newest_message_id = message_id
 
-                reached_old_message = True
+            # ------------------------------------------------
+            # STOP AT SAVED MESSAGE
+            # ------------------------------------------------
 
-                continue
+            if (
+                last_saved_message_id > 0
+                and message_id <= last_saved_message_id
+            ):
+                reached_saved_message = True
+
+                print(
+                    f"Reached saved message: "
+                    f"{message_id}"
+                )
+
+                break
+
+            # ------------------------------------------------
+            # Extract text
+            # ------------------------------------------------
 
             text_element = message.find(
                 "div",
@@ -271,27 +293,33 @@ def scrape_channel(channel, state):
                     configs
                 )
 
-        # ----------------------------------------------------
-        # If we've reached messages we've already processed,
-        # there is no reason to continue backwards.
-        # ----------------------------------------------------
+                # Don't unnecessarily collect
+                # thousands of configs from one message.
+                if len(all_configs) >= MAX_CONFIGS:
+                    break
 
-        if reached_old_message:
+        # ====================================================
+        # STOP CONDITIONS
+        # ====================================================
 
+        if reached_saved_message:
             print(
-                "Reached previously processed messages."
+                "Reached previously saved message."
             )
-
             break
 
-        # ----------------------------------------------------
-        # Find "previous" pagination link
-        # ----------------------------------------------------
+        if len(all_configs) >= MAX_CONFIGS:
+            print(
+                f"Reached MAX_CONFIGS ({MAX_CONFIGS})."
+            )
+            break
+
+        # ====================================================
+        # FIND PREVIOUS PAGE
+        # ====================================================
 
         previous_link = None
 
-        # Telegram uses navigation links on public pages.
-        # Look for a link that contains ?before=
         for link in soup.find_all(
             "a",
             href=True
@@ -308,32 +336,31 @@ def scrape_channel(channel, state):
 
                 break
 
-        # ----------------------------------------------------
-        # No more pages
-        # ----------------------------------------------------
+        # ====================================================
+        # NO MORE PAGES
+        # ====================================================
 
         if not previous_link:
 
             print(
                 "No previous page available."
             )
-
             break
 
-        # ----------------------------------------------------
-        # Safety: avoid infinite loop
-        # ----------------------------------------------------
+        # ====================================================
+        # SAFETY LIMIT
+        # ========================================================
 
         if page_number >= 100:
 
             print(
                 "Pagination safety limit reached."
             )
-
             break
 
-        # If current page doesn't move backwards,
-        # stop to avoid infinite loop.
+        # ====================================================
+        # SAFETY: MAKE SURE WE ARE MOVING BACKWARDS
+        # ========================================================
 
         if page_message_ids:
 
@@ -341,27 +368,47 @@ def scrape_channel(channel, state):
                 page_message_ids
             )
 
-            if (
-                last_message_id > 0
-                and oldest_on_page <= last_message_id
-            ):
+            # If the next page isn't actually older,
+            # prevent an infinite loop.
+            if previous_link == url:
 
+                print(
+                    "Pagination did not move. Stopping."
+                )
                 break
 
         url = previous_link
 
-    # --------------------------------------------------------
-    # Update state
-    # --------------------------------------------------------
+    # =========================================================
+    # UPDATE STATE
+    # =========================================================
 
-    if newest_message_id > last_message_id:
+    if newest_message_id is not None:
 
         state[channel] = newest_message_id
+
+    # =========================================================
+    # REMOVE DUPLICATES
+    # =========================================================
+
+    unique_configs = list(
+        dict.fromkeys(
+            all_configs
+        )
+    )
+
+    # =========================================================
+    # LIMIT
+    # =========================================================
+
+    unique_configs = unique_configs[
+        :MAX_CONFIGS
+    ]
 
     print()
     print(
         f"New configs found: "
-        f"{len(all_configs)}"
+        f"{len(unique_configs)}"
     )
 
     print(
@@ -369,7 +416,12 @@ def scrape_channel(channel, state):
         f"{newest_message_id}"
     )
 
-    return all_configs
+    print(
+        f"Reached saved message: "
+        f"{reached_saved_message}"
+    )
+
+    return unique_configs
 
 
 # ============================================================
@@ -401,9 +453,9 @@ def main():
                 f"ERROR {channel}: {e}"
             )
 
-    # --------------------------------------------------------
-    # Remove duplicates
-    # --------------------------------------------------------
+    # ========================================================
+    # REMOVE DUPLICATES
+    # ========================================================
 
     unique_configs = list(
         dict.fromkeys(
@@ -411,17 +463,17 @@ def main():
         )
     )
 
-    # --------------------------------------------------------
-    # Limit
-    # --------------------------------------------------------
+    # ========================================================
+    # LIMIT
+    # ========================================================
 
     unique_configs = unique_configs[
         :MAX_CONFIGS
     ]
 
-    # --------------------------------------------------------
-    # Save
-    # --------------------------------------------------------
+    # ========================================================
+    # SAVE SUB.TXT
+    # ========================================================
 
     with open(
         OUTPUT_FILE,
@@ -435,13 +487,17 @@ def main():
                 config + "\n"
             )
 
+    # ========================================================
+    # SAVE STATE
+    # ========================================================
+
     save_state(
         state
     )
 
-    # --------------------------------------------------------
-    # Result
-    # --------------------------------------------------------
+    # ========================================================
+    # RESULT
+    # ========================================================
 
     print()
     print("=" * 60)
@@ -449,7 +505,7 @@ def main():
     print("=" * 60)
 
     print(
-        f"New configs saved: "
+        f"Configs saved: "
         f"{len(unique_configs)}"
     )
 
@@ -463,6 +519,10 @@ def main():
         f"{STATE_FILE}"
     )
 
+
+# ============================================================
+# RUN
+# ============================================================
 
 if __name__ == "__main__":
     main()
