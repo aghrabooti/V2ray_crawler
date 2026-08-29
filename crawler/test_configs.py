@@ -16,8 +16,8 @@ import requests
 # SETTINGS
 # ============================================================
 
-SUB_FILE = "sub.txt"
-SUBLINK_FILE = "sublink.txt"
+SUB_FILE = r"E:\CODE\repos\V2ray_crawler\crawler\sub.txt"
+SUBLINK_FILE = "../sublink.txt"
 
 XRAY_BINARY = r"C:\Users\User\Desktop\apps\v2rayN-windows-64\bin\xray\xray.exe"
 
