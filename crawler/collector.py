@@ -12,7 +12,7 @@ from urllib.parse import urljoin
 
 CHANNELS = ["DailyV2Proxy"]
 
-MAX_CONFIGS = 100
+MAX_CONFIGS = 300
 
 # Files will be saved next to this Python script
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
