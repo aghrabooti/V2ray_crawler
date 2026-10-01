@@ -8,6 +8,11 @@ import type {
 interface Env {
   BOT_TOKEN: string;
   confighub_users: D1Database;
+  // Public URL of this worker, e.g.
+  // https://confighub-bot.<account>.workers.dev
+  // Used by the cron job to keep the Telegram
+  // webhook pointed at this worker.
+  WORKER_URL?: string;
 }
 
 const SUBLINK_URL =
@@ -815,9 +820,213 @@ async function broadcastUpdate(
   }
 
 
+  // Remember what was broadcast, so the cron
+  // fallback does not send a duplicate message.
+
+  try {
+
+    const sublink = await loadSublink();
+
+    if (sublink.trim()) {
+
+      await setState(
+        env,
+        "sublink_fingerprint",
+        `${sublink.length}:${hashString(sublink)}`
+      );
+
+    }
+
+  } catch {}
+
+
   console.log(
     "Broadcast finished."
   );
+
+}
+
+
+// ============================================================
+// SIMPLE HASH
+// ============================================================
+
+function hashString(text: string): string {
+
+  let hash = 5381;
+
+  for (let i = 0; i < text.length; i++) {
+
+    hash = ((hash * 33) ^ text.charCodeAt(i)) >>> 0;
+
+  }
+
+  return hash.toString(16);
+
+}
+
+
+// ============================================================
+// STATE (D1 key/value)
+// ============================================================
+
+async function ensureStateTable(
+  env: Env
+): Promise<void> {
+
+  await env.confighub_users
+    .prepare(
+      "CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT)"
+    )
+    .run();
+
+}
+
+
+async function getState(
+  env: Env,
+  key: string
+): Promise<string | null> {
+
+  try {
+
+    await ensureStateTable(env);
+
+    const row = await env.confighub_users
+      .prepare(
+        "SELECT value FROM state WHERE key = ?"
+      )
+      .bind(key)
+      .first<{ value: string }>();
+
+    return row ? row.value : null;
+
+  } catch (error) {
+
+    console.error("getState failed:", error);
+
+    return null;
+
+  }
+
+}
+
+
+async function setState(
+  env: Env,
+  key: string,
+  value: string
+): Promise<void> {
+
+  try {
+
+    await ensureStateTable(env);
+
+    await env.confighub_users
+      .prepare(
+        "INSERT INTO state (key, value) VALUES (?, ?) " +
+        "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+      )
+      .bind(key, value)
+      .run();
+
+  } catch (error) {
+
+    console.error("setState failed:", error);
+
+  }
+
+}
+
+
+// ============================================================
+// WEBHOOK SELF-HEALING
+//
+// Telegram delivers updates to exactly ONE target.
+// If the webhook gets dropped (token revoked, someone ran
+// the polling script in bot/bot.py, someone set another
+// webhook) the bot can still SEND messages but stops
+// REACTING to /start and buttons.
+// The cron job re-arms the webhook automatically.
+// ============================================================
+
+async function ensureWebhook(
+  env: Env
+): Promise<void> {
+
+  if (!env.WORKER_URL) {
+
+    console.log(
+      "WORKER_URL not configured, skipping webhook check."
+    );
+
+    return;
+
+  }
+
+  const expected =
+    `${env.WORKER_URL.replace(/\/+$/, "")}/telegram`;
+
+  try {
+
+    const infoResponse = await fetch(
+      `https://api.telegram.org/bot${env.BOT_TOKEN}/getWebhookInfo`
+    );
+
+    const info = await infoResponse.json() as {
+      result?: {
+        url?: string;
+        last_error_message?: string;
+      };
+    };
+
+    const current = info.result?.url || "";
+
+    if (info.result?.last_error_message) {
+
+      console.error(
+        "Webhook last error:",
+        info.result.last_error_message
+      );
+
+    }
+
+    if (current === expected) {
+
+      return;
+
+    }
+
+    console.log(
+      `Webhook is "${current}", re-arming to "${expected}"`
+    );
+
+    await fetch(
+      `https://api.telegram.org/bot${env.BOT_TOKEN}/setWebhook`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: expected,
+          allowed_updates: [
+            "message",
+            "callback_query",
+            "inline_query",
+          ],
+        }),
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "ensureWebhook failed:",
+      error
+    );
+
+  }
 
 }
 
@@ -871,11 +1080,72 @@ export default {
       `Scheduled event: ${new Date().toISOString()}`
     );
 
-    // Nothing needs to run here.
-    // The bot is webhook-based.
-    //
-    // GitHub sends POST /github-update
-    // whenever crawler/sublink.txt changes.
+
+    // 1. Keep the Telegram webhook pointed here,
+    //    so /start and buttons never go silent.
+
+    await ensureWebhook(env);
+
+
+    // 2. Fallback change detection, in case the
+    //    GitHub webhook to /github-update is off.
+
+    try {
+
+      const sublink = await loadSublink();
+
+      if (!sublink.trim()) {
+
+        return;
+
+      }
+
+      const fingerprint =
+        `${sublink.length}:${hashString(sublink)}`;
+
+      const previous =
+        await getState(env, "sublink_fingerprint");
+
+      if (previous === null) {
+
+        await setState(
+          env,
+          "sublink_fingerprint",
+          fingerprint
+        );
+
+        console.log(
+          "Stored initial sublink fingerprint."
+        );
+
+        return;
+
+      }
+
+      if (previous !== fingerprint) {
+
+        console.log(
+          "sublink.txt changed, broadcasting."
+        );
+
+        await setState(
+          env,
+          "sublink_fingerprint",
+          fingerprint
+        );
+
+        await broadcastUpdate(env);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "SCHEDULED ERROR:",
+        error
+      );
+
+    }
 
   },
 

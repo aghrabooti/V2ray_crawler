@@ -16,8 +16,8 @@ import requests
 # SETTINGS
 # ============================================================
 
-SUB_FILE = r"E:\CODE\repos\V2ray_crawler\crawler\sub.txt"
-SUBLINK_FILE = r"E:\CODE\repos\V2ray_crawler\crawler\sublink.txt"
+SUB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sub.txt")
+SUBLINK_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sublink.txt")
 
 XRAY_BINARY = r"C:\Users\User\Desktop\apps\v2rayN-windows-64\bin\xray\xray.exe"
 

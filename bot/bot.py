@@ -810,6 +810,21 @@ try:
     # /start or button presses.
     # So we always drop the webhook before polling.
 
+    # Set ALLOW_POLLING=1 in .env only if this script is
+    # the live bot. The Cloudflare Worker (bot/bot.ts) is
+    # the production bot and uses a webhook; running this
+    # script without ALLOW_POLLING would silently take
+    # updates away from it.
+
+    if os.getenv("ALLOW_POLLING") != "1":
+
+        raise SystemExit(
+            "Refusing to start polling: the Cloudflare Worker "
+            "owns the Telegram webhook.\n"
+            "Set ALLOW_POLLING=1 in bot/.env if you really want "
+            "to run this script instead of the worker."
+        )
+
     try:
 
         webhook_info = bot.get_webhook_info()

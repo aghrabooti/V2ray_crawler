@@ -8,3 +8,7 @@ database_name = "confighub_users"
 database_id = "03d5901b-2302-4e9e-8499-960eb1ca985d"
 [triggers]
 crons = ["*/5 * * * *"]
+[vars]
+# Public URL of the deployed worker (no trailing slash).
+# The cron job uses it to keep the Telegram webhook armed.
+WORKER_URL = ""
