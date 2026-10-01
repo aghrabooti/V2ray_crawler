@@ -800,6 +800,45 @@ watcher_thread.start()
 
 try:
 
+    # IMPORTANT
+    # Telegram delivers updates either to a webhook
+    # OR to getUpdates (polling) - never to both.
+    # If a webhook is still registered (e.g. from the
+    # Cloudflare Worker in bot/bot.ts), polling silently
+    # fails with HTTP 409 Conflict: the bot can still
+    # SEND messages (broadcast works) but never RECEIVES
+    # /start or button presses.
+    # So we always drop the webhook before polling.
+
+    try:
+
+        webhook_info = bot.get_webhook_info()
+
+        if webhook_info.url:
+
+            print(
+                f"Active webhook found: {webhook_info.url}"
+            )
+
+            print(
+                "Removing it so polling can receive updates."
+            )
+
+        bot.remove_webhook()
+
+        time.sleep(1)
+
+        print(
+            "Webhook cleared. Polling mode active."
+        )
+
+    except Exception as error:
+
+        print(
+            "Could not clear webhook:",
+            error
+        )
+
     print(
         "Bot polling started."
     )
