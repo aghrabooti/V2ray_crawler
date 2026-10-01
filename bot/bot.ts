@@ -486,6 +486,60 @@ function registerHandlers(
 
 
   // ==========================================================
+  // ANY OTHER MESSAGE -> SHOW THE MENU
+  // ==========================================================
+
+  bot.on(
+    "message",
+    async (ctx) => {
+
+      try {
+
+        await addUser(
+          env,
+          String(ctx.chat.id)
+        );
+
+        await ctx.reply(
+          "Choose what you need:",
+          {
+            reply_markup:
+              mainKeyboard(),
+          }
+        );
+
+      } catch (error) {
+
+        console.error(
+          "MESSAGE FALLBACK ERROR:",
+          error
+        );
+
+      }
+
+    }
+  );
+
+
+  // ==========================================================
+  // ANY UNMATCHED CALLBACK
+  // ==========================================================
+
+  bot.on(
+    "callback_query",
+    async (ctx) => {
+
+      try {
+
+        await ctx.answerCallbackQuery();
+
+      } catch {}
+
+    }
+  );
+
+
+  // ==========================================================
   // INLINE MODE
   // ==========================================================
 
@@ -953,27 +1007,106 @@ export default {
 
 
     // ========================================================
-    // TELEGRAM WEBHOOK
+    // WEBHOOK MANAGEMENT
+    //   GET /set-webhook   -> points Telegram to this worker
+    //   GET /webhook-info  -> shows the current webhook state
     // ========================================================
 
     if (
-      url.pathname ===
-      "/telegram"
+      url.pathname === "/set-webhook"
     ) {
 
-      if (
-        request.method !== "POST"
-      ) {
+      try {
+
+        const webhookUrl =
+          `${url.origin}/telegram`;
+
+
+        const response =
+          await fetch(
+            `https://api.telegram.org/bot${env.BOT_TOKEN}/setWebhook`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+              body: JSON.stringify({
+                url: webhookUrl,
+                allowed_updates: [
+                  "message",
+                  "callback_query",
+                  "inline_query",
+                ],
+                drop_pending_updates: true,
+              }),
+            }
+          );
+
 
         return new Response(
-          "Method Not Allowed",
+          await response.text(),
           {
-            status: 405,
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
           }
+        );
+
+      } catch (error) {
+
+        return new Response(
+          `setWebhook failed: ${String(error)}`,
+          { status: 500 }
         );
 
       }
 
+    }
+
+
+    if (
+      url.pathname === "/webhook-info"
+    ) {
+
+      const response =
+        await fetch(
+          `https://api.telegram.org/bot${env.BOT_TOKEN}/getWebhookInfo`
+        );
+
+
+      return new Response(
+        await response.text(),
+        {
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+        }
+      );
+
+    }
+
+
+    // ========================================================
+    // TELEGRAM WEBHOOK
+    //
+    // Accept the update on /telegram, on /<bot token>
+    // and on any POST to the root path, so a webhook that
+    // was registered with a different path still works.
+    // ========================================================
+
+    if (
+      request.method === "POST" &&
+      (
+        url.pathname === "/telegram" ||
+        url.pathname === "/" ||
+        url.pathname === "" ||
+        url.pathname ===
+          `/${env.BOT_TOKEN}`
+      )
+    ) {
 
       try {
 
