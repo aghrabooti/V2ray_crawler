@@ -19,10 +19,8 @@ import requests
 SUB_FILE = r"E:\CODE\repos\V2ray_crawler\crawler\sub.txt"
 SUBLINK_FILE = r"E:\CODE\repos\V2ray_crawler\crawler\sublink.txt"
 
-# Path to sing-box binary
-# Windows example: r"C:\Tools\sing-box\sing-box.exe"
-# Linux example:   "/usr/local/bin/sing-box"
-SING_BOX_BINARY = r"C:\Users\User\Desktop\apps\v2rayN-windows-64\bin\sing-box\sing-box.exe"
+
+SING_BOX_BINARY = r"C:\Users\User\OneDrive\Desktop\sing-box-1.14.3-windows-amd64\sing-box.exe"
 
 SOCKS_HOST = "127.0.0.1"
 SOCKS_PORT = 10808
