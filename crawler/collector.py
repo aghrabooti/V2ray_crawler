@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 # SETTINGS
 # ============================================================
 
-CHANNELS = ["DailyV2Proxy"]
+CHANNELS = ["vfrogproxy"]
 
 MAX_CONFIGS = 300
 
