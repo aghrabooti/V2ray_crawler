@@ -10,9 +10,9 @@ from urllib.parse import urljoin
 # SETTINGS
 # ============================================================
 
-CHANNELS = ["dailyv2proxy"]
+CHANNELS = ["meliproxyy"]
 
-MAX_CONFIGS = 300
+MAX_CONFIGS = 500
 
 # Files will be saved next to this Python script
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
