@@ -10,7 +10,9 @@ from urllib.parse import urljoin
 # SETTINGS
 # ============================================================
 
-CHANNELS = ["meliproxyy"]
+CHANNELS = ["meliproxyy",
+            "dailyv2proxy",
+            "oneclickvpnkeys"]
 
 MAX_CONFIGS = 500
 
