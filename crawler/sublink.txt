@@ -1,6 +1,4 @@
-vless://e4514801-0d5a-42ba-869f-39bd605aef9e@13.38.160.58:22224?encryption=none&security=none&type=tcp#%F0%9F%87%AB%F0%9F%87%B7%20on%20bir%20mehmet%20buyuk%202026-10-20
-vmess://eyJhZGQiOiIxODguMjEyLjk3LjQwIiwiYWlkIjoiMCIsImFscG4iOiIiLCJmcCI6IiIsImhvc3QiOiIiLCJpZCI6IjczZWNjNWQzLTIzNmUtNGRiZS04MDlhLTQ5NDg0Mjc3YTEwZiIsImluc2VjdXJlIjoiMCIsIm5ldCI6InRjcCIsInBhdGgiOiIiLCJwY3MiOiIiLCJwb3J0IjoiNTc2ODIiLCJwcyI6IvCfh67wn4e3IHwgQERhaWx5VjJQcm94eSDwn5GIINqp2KfZhtin2YQg2KrZhNqv2LHYp9mFIiwic2N5IjoiYXV0byIsInNuaSI6IiIsInRscyI6IiIsInR5cGUiOiJub25lIiwidiI6IjIiLCJ2Y24iOiIifQ==#%F0%9F%87%AE%F0%9F%87%B7%20on%20bir%20mehmet%20buyuk%202026-10-20
-ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.18:19999#%F0%9F%87%AE%F0%9F%87%B9%20on%20bir%20mehmet%20buyuk%202026-10-20
-ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.18:19999?#%F0%9F%87%AE%F0%9F%87%B9%20on%20bir%20mehmet%20buyuk%202026-10-20
-ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.81:19999?#%F0%9F%87%AE%F0%9F%87%B9%20on%20bir%20mehmet%20buyuk%202026-10-20
-ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.81:19999#%F0%9F%87%AE%F0%9F%87%B9%20on%20bir%20mehmet%20buyuk%202026-10-20
+vless://ba74edce-f4b0-405d-8dab-f922ba0eb8e4@Pass.zqpm.ir:20727?security=reality&encryption=none&pbk=PF8LdirtBEOQ_w9-1-i3mhgeFYbIQ1iOu1FPCfxUHQo&headerType=none&fp=chrome&type=tcp&sni=yahoo.com&sid=2efbb0033df59520#%F0%9F%87%A9%F0%9F%87%AA%20on%20bir%20mehmet%20buyuk%202026-10-21
+vless://ba74edce-f4b0-405d-8dab-f922ba0eb8e4@pass.zqpm.ir:20727?encryption=none&security=reality&sni=yahoo.com&fp=chrome&pbk=PF8LdirtBEOQ_w9-1-i3mhgeFYbIQ1iOu1FPCfxUHQo&sid=2efbb0033df59520&type=tcp&headerType=none#%F0%9F%87%A9%F0%9F%87%AA%20on%20bir%20mehmet%20buyuk%202026-10-21
+ss://YWVzLTI1Ni1nY206QnpHNE9pZGtMQmlqVDA0WUdJeVZNWEJkOWVTLWNhVmk@Tak.zqpm.ir:8989#%F0%9F%87%B9%F0%9F%87%B7%20on%20bir%20mehmet%20buyuk%202026-10-21
+ss://YWVzLTI1Ni1nY206QnpHNE9pZGtMQmlqVDA0WUdJeVZNWEJkOWVTLWNhVmk@tak.zqpm.ir:8989?#%F0%9F%87%B9%F0%9F%87%B7%20on%20bir%20mehmet%20buyuk%202026-10-21
